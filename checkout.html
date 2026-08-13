@@ -231,6 +231,33 @@
                 </div>
               </div>
             </label>
+
+            <!-- Order Bump 3 -->
+            <label class="block p-3.5 sm:p-4 rounded-2xl border-2 border-[#2ac473]/40 bg-emerald-50/30 hover:bg-emerald-50/60 cursor-pointer transition-all">
+              <div class="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="bump-3"
+                  onchange="updateTotal()"
+                  class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0"
+                />
+                <div class="flex-grow min-w-0">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <img src="https://i.imgur.com/jmtbos4.png" alt="Icon" class="w-7 h-7 rounded-lg object-cover border border-emerald-200 flex-shrink-0" />
+                      <span class="font-bold text-sm text-slate-900 truncate">ProLotto - Números Pelo WhatsApp</span>
+                    </div>
+                    <div class="bg-[#2ac473] text-white px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-sm flex-shrink-0">
+                      <span class="line-through opacity-80 text-[10px]">R$ 47,00</span>
+                      <span>R$ 14,00</span>
+                    </div>
+                  </div>
+                  <p class="text-xs text-slate-500 leading-relaxed pt-1">
+                    Receba os jogos de todas as loterias também pelo seu whatsapp todos os dias.
+                  </p>
+                </div>
+              </div>
+            </label>
           </div>
         </div>
 
@@ -405,6 +432,7 @@
       let total = 37.00;
       const b1 = document.getElementById('bump-1').checked;
       const b2 = document.getElementById('bump-2').checked;
+      const b3 = document.getElementById('bump-3').checked;
 
       const summaryList = document.getElementById('summary-items-list');
       let itemsHtml = `
@@ -432,6 +460,15 @@
           </div>
         `;
       }
+      if (b3) {
+        total += 14.00;
+        itemsHtml += `
+          <div class="flex justify-between text-emerald-700 font-medium">
+            <span>+ ProLotto - Números pelo WhatsApp</span>
+            <span>R$ 14,00</span>
+          </div>
+        `;
+      }
 
       summaryList.innerHTML = itemsHtml;
       document.getElementById('total-price-display').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
@@ -454,6 +491,7 @@
 
       const bump1Checked = document.getElementById('bump-1').checked;
       const bump2Checked = document.getElementById('bump-2').checked;
+      const bump3Checked = document.getElementById('bump-3').checked;
 
       // AbortController with 30 second timeout for slow mobile connections
       const controller = new AbortController();
@@ -464,7 +502,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           signal: controller.signal,
-          body: JSON.stringify({ name, email, phone, bump1: bump1Checked, bump2: bump2Checked })
+          body: JSON.stringify({ name, email, phone, bump1: bump1Checked, bump2: bump2Checked, bump3: bump3Checked })
         });
 
         clearTimeout(timeoutId);
