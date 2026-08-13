@@ -128,15 +128,20 @@ module.exports = async function handler(req, res) {
 
     const ironData = await ironResponse.json();
 
-    if (ironResponse.ok || ironResponse.status === 201) {
-      const pixCode = (ironData.pix && ironData.pix.pix_qr_code) || ironData.pix_code || '';
+    if (ironResponse.ok || ironResponse.status === 201 || ironData.hash || (ironData.pix && (ironData.pix.pix_qr_code || ironData.pix.pix_url))) {
+      const pixCode = (ironData.pix && ironData.pix.pix_qr_code) || 
+                      ironData.pix_code || 
+                      ironData.pix_qr_code || 
+                      (ironData.data && ironData.data.pix && ironData.data.pix.pix_qr_code) || 
+                      '';
+
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
 
       return res.status(200).json({
         success: true,
         generated_cpf: validCpf,
-        transaction_hash: ironData.hash || ironData.transaction_hash,
-        status: ironData.payment_status || ironData.status || "pending",
+        transaction_hash: ironData.hash || ironData.transaction_hash || (ironData.data && ironData.data.hash),
+        status: ironData.payment_status || ironData.status || "waiting_payment",
         amount: totalAmountCents,
         pix: {
           code: pixCode,
@@ -147,7 +152,7 @@ module.exports = async function handler(req, res) {
     } else {
       return res.status(ironResponse.status || 400).json({
         success: false,
-        error: ironData.message || 'Erro ao processar transação com a IronPay',
+        error: ironData.message || (ironData.errors && JSON.stringify(ironData.errors)) || 'Erro ao processar transação com a IronPay',
         details: ironData
       });
     }
