@@ -1,6 +1,15 @@
 {
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "framework": null,
   "rewrites": [
-    { "source": "/checkout", "destination": "/checkout.html" },
-    { "source": "/api/check-status/:hash", "destination": "/api/check-status" }
+    {
+      "source": "/checkout",
+      "destination": "/checkout.html"
+    },
+    {
+      "source": "/api/check-status/:hash",
+      "destination": "/api/check-status"
+    }
   ]
 }
