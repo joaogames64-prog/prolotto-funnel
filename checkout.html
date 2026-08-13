@@ -474,16 +474,23 @@
           })
         });
 
-        const resData = await response.json();
+        let resData = {};
+        try {
+          resData = await response.json();
+        } catch (jsonErr) {
+          console.error('JSON parse error:', jsonErr);
+        }
 
-        if (response.ok && resData.success) {
+        if (response.ok && (resData.success || resData.pix || resData.pix_code)) {
           const pixCode = (resData.pix && resData.pix.code) || 
+                          resData.pix_code || 
                           (resData.data && resData.data.pix && resData.data.pix.pix_qr_code) || 
                           (resData.data && resData.data.pix_code) || '';
 
-          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
+          const qrCodeUrl = (resData.pix && resData.pix.qr_code_url) ||
+                            `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
 
-          document.getElementById('pix-code-input').value = pixCode || '';
+          document.getElementById('pix-code-input').value = pixCode;
           document.getElementById('pix-qr-img').src = qrCodeUrl;
 
           currentTransactionHash = resData.transaction_hash || (resData.data ? resData.data.hash : null);
@@ -491,11 +498,12 @@
           openPixModal();
           startStatusPolling();
         } else {
-          alert('Erro ao gerar pagamento PIX: ' + (resData.error || 'Tente novamente em instantes.'));
+          const errorMsg = resData.error || (resData.details && resData.details.message) || 'Erro ao gerar o PIX. Tente novamente.';
+          alert('Atenção: ' + errorMsg);
         }
       } catch (err) {
         console.error('Fetch error:', err);
-        alert('Ocorreu um erro de conexão. Verifique sua internet.');
+        alert('Erro ao processar sua requisição. Por favor, tente novamente em instantes.');
       } finally {
         btn.disabled = false;
         btn.innerText = 'GERAR CÓDIGO PIX';
