@@ -275,8 +275,8 @@
 
           <!-- Submit CTA Button -->
           <button
-            type="submit"
-            form="checkout-form"
+            type="button"
+            onclick="gerarPix()"
             id="btn-submit-checkout"
             class="w-full py-4 px-6 rounded-xl bg-[#2ac473] hover:bg-[#22a660] text-white font-black text-lg uppercase tracking-wider text-center shadow-xl transition-all duration-300 animate-pulse-btn"
           >
@@ -437,42 +437,37 @@
       document.getElementById('total-price-display').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
     }
 
-    // Form Submission Handling
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-
-      const name = document.getElementById('input-name').value.trim();
-      const email = document.getElementById('input-email').value.trim();
-      const phone = document.getElementById('input-phone').value.trim();
+    // Main PIX Generation Function (called directly by button onclick)
+    async function gerarPix() {
+      const name = (document.getElementById('input-name').value || '').trim();
+      const email = (document.getElementById('input-email').value || '').trim();
+      const phone = (document.getElementById('input-phone').value || '').trim();
 
       if (!name || !email || !phone) {
         alert('Por favor, preencha todos os campos para continuar.');
         return;
       }
 
-      let total = 37.00;
-      if (document.getElementById('bump-1').checked) total += 14.00;
-      if (document.getElementById('bump-2').checked) total += 14.00;
-
       const btn = document.getElementById('btn-submit-checkout');
       btn.disabled = true;
       btn.innerText = 'GERANDO PIX...';
 
-      try {
-        const bump1Checked = document.getElementById('bump-1').checked;
-        const bump2Checked = document.getElementById('bump-2').checked;
+      const bump1Checked = document.getElementById('bump-1').checked;
+      const bump2Checked = document.getElementById('bump-2').checked;
 
+      // AbortController with 30 second timeout for slow mobile connections
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      try {
         const response = await fetch('/api/create-pix-transaction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: name,
-            email: email,
-            phone: phone,
-            bump1: bump1Checked,
-            bump2: bump2Checked
-          })
+          signal: controller.signal,
+          body: JSON.stringify({ name, email, phone, bump1: bump1Checked, bump2: bump2Checked })
         });
+
+        clearTimeout(timeoutId);
 
         let resData = {};
         try {
@@ -481,34 +476,65 @@
           console.error('JSON parse error:', jsonErr);
         }
 
-        if (response.ok && (resData.success || resData.pix || resData.pix_code)) {
-          const pixCode = (resData.pix && resData.pix.code) || 
-                          resData.pix_code || 
-                          (resData.data && resData.data.pix && resData.data.pix.pix_qr_code) || 
-                          (resData.data && resData.data.pix_code) || '';
+        console.log('[PIX] Response:', response.status, JSON.stringify(resData).substring(0, 200));
 
-          const qrCodeUrl = (resData.pix && resData.pix.qr_code_url) ||
-                            `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
+        // Extract pix code from any known response format
+        const pixCode = (resData.pix && resData.pix.code) ||
+                        resData.pix_code ||
+                        (resData.data && resData.data.pix && resData.data.pix.pix_qr_code) ||
+                        '';
+
+        if ((response.ok || response.status === 201) && pixCode) {
+          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
 
           document.getElementById('pix-code-input').value = pixCode;
           document.getElementById('pix-qr-img').src = qrCodeUrl;
 
-          currentTransactionHash = resData.transaction_hash || (resData.data ? resData.data.hash : null);
+          currentTransactionHash = resData.transaction_hash ||
+                                   (resData.data && resData.data.hash) ||
+                                   null;
 
           openPixModal();
           startStatusPolling();
+
+        } else if (response.ok && resData.success) {
+          // Edge case: success=true but pixCode might be in data sub-object
+          const fallbackCode = (resData.data && resData.data.pix && resData.data.pix.pix_qr_code) || '';
+          if (fallbackCode) {
+            const fallbackQr = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(fallbackCode)}`;
+            document.getElementById('pix-code-input').value = fallbackCode;
+            document.getElementById('pix-qr-img').src = fallbackQr;
+            currentTransactionHash = resData.transaction_hash || (resData.data && resData.data.hash) || null;
+            openPixModal();
+            startStatusPolling();
+          } else {
+            alert('PIX gerado mas código não encontrado. Entre em contato com o suporte.');
+          }
         } else {
-          const errorMsg = resData.error || (resData.details && resData.details.message) || 'Erro ao gerar o PIX. Tente novamente.';
-          alert('Atenção: ' + errorMsg);
+          const errorMsg = (resData.error) || (resData.details && resData.details.message) || `Erro ${response.status}`;
+          alert('Erro ao gerar PIX: ' + errorMsg);
         }
+
       } catch (err) {
-        console.error('Fetch error:', err);
-        alert('Erro ao processar sua requisição. Por favor, tente novamente em instantes.');
+        clearTimeout(timeoutId);
+        console.error('[PIX ERROR]', err.name, err.message);
+        if (err.name === 'AbortError') {
+          alert('A requisição demorou muito. Verifique sua conexão e tente novamente.');
+        } else {
+          alert('Erro de conexão: ' + err.message + '\n\nPor favor, tente novamente.');
+        }
       } finally {
         btn.disabled = false;
         btn.innerText = 'GERAR CÓDIGO PIX';
       }
     }
+
+    // Keep handleFormSubmit as alias for backward compat
+    async function handleFormSubmit(e) {
+      if (e) e.preventDefault();
+      await gerarPix();
+    }
+
 
     // Modal Control
     function openPixModal() {
