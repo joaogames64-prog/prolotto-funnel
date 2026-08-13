@@ -22,7 +22,7 @@ const CONFIG = {
   ORDER_BUMP_3: {
     product_hash: "am8eyy3wrb",
     title: "ProLotto - Números Pelo WhatsApp",
-    price: 1400
+    price: 700
   }
 };
 
