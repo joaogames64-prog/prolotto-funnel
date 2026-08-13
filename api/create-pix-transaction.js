@@ -18,6 +18,11 @@ const CONFIG = {
     offer_hash: "f52elc7ob6",
     title: "ProLotto - Análise de Estratégias de Bolões",
     price: 1400
+  },
+  ORDER_BUMP_3: {
+    product_hash: "am8eyy3wrb",
+    title: "ProLotto - Números Pelo WhatsApp",
+    price: 1400
   }
 };
 
@@ -52,7 +57,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { name, email, phone, bump1, bump2 } = req.body;
+    const { name, email, phone, bump1, bump2, bump3 } = req.body;
 
     if (!name || !email || !phone) {
       return res.status(400).json({ error: 'Nome, E-mail e Telefone são obrigatórios.' });
@@ -97,6 +102,18 @@ module.exports = async function handler(req, res) {
         tangible: false
       });
       totalAmountCents += CONFIG.ORDER_BUMP_2.price;
+    }
+
+    if (bump3) {
+      cart.push({
+        product_hash: CONFIG.ORDER_BUMP_3.product_hash,
+        title: CONFIG.ORDER_BUMP_3.title,
+        price: CONFIG.ORDER_BUMP_3.price,
+        quantity: 1,
+        operation_type: 1,
+        tangible: false
+      });
+      totalAmountCents += CONFIG.ORDER_BUMP_3.price;
     }
 
     const ironpayPayload = {
