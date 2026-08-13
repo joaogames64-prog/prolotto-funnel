@@ -130,7 +130,7 @@ module.exports = async function handler(req, res) {
 
     if (ironResponse.ok || ironResponse.status === 201) {
       const pixCode = (ironData.pix && ironData.pix.pix_qr_code) || ironData.pix_code || '';
-      const qrCodeUrl = (ironData.pix && ironData.pix.pix_url) || '';
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
 
       return res.status(200).json({
         success: true,
@@ -140,7 +140,7 @@ module.exports = async function handler(req, res) {
         amount: totalAmountCents,
         pix: {
           code: pixCode,
-          qr_code_url: qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`
+          qr_code_url: qrCodeUrl
         },
         data: ironData
       });
