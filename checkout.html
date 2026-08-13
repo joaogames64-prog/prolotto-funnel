@@ -14,6 +14,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+  <!-- Lowtrack Pixel -->
+  <script>
+    window.pixelId = "lt_px_01e6f9feb885";
+    var a = document.createElement("script");
+    a.setAttribute("async", "");
+    a.setAttribute("defer", "");
+    a.setAttribute("src", "https://lowtrack.com.br/pixel.js");
+    document.head.appendChild(a);
+  </script>
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -471,12 +481,10 @@
                           (resData.data && resData.data.pix && resData.data.pix.pix_qr_code) || 
                           (resData.data && resData.data.pix_code) || '';
 
-          const qrCodeUrl = (resData.pix && resData.pix.qr_code_url) || 
-                            (resData.data && resData.data.pix && resData.data.pix.pix_url) || 
-                            `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`;
+          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
 
-          document.getElementById('pix-code-input').value = pixCode || '00020126580014BR.GOV.BCB.PIX...';
-          document.getElementById('pix-qr-img').src = qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`;
+          document.getElementById('pix-code-input').value = pixCode || '';
+          document.getElementById('pix-qr-img').src = qrCodeUrl;
 
           currentTransactionHash = resData.transaction_hash || (resData.data ? resData.data.hash : null);
 
