@@ -25,6 +25,26 @@
     document.head.appendChild(a);
   </script>
 
+  <!-- UTM CAPTURE - Runs immediately, saves to localStorage for cross-page persistence -->
+  <script>
+    (function() {
+      var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck'];
+      var params = new URLSearchParams(window.location.search);
+      var stored = {};
+      UTM_KEYS.forEach(function(k) {
+        var val = params.get(k);
+        if (val) {
+          localStorage.setItem('plt_' + k, val);
+          stored[k] = val;
+        }
+      });
+      // Always update timestamp when new UTMs arrive
+      if (Object.keys(stored).length > 0) {
+        localStorage.setItem('plt_ts', Date.now().toString());
+      }
+    })();
+  </script>
+
   <style>
     @keyframes fadeInUp {
       from {
@@ -1398,7 +1418,7 @@
               <div id="checkout-cta-container" class="${isAlreadyUnlocked ? 'block' : 'hidden'} w-full max-w-[400px] mt-6 text-center animate-fade-in-up">
                 <a
                   href="javascript:void(0)"
-                  onclick="(function(){var p=new URLSearchParams(window.location.search);var utms=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src'];var out=new URLSearchParams();utms.forEach(function(k){if(p.get(k))out.set(k,p.get(k));});var qs=out.toString();window.location.href='checkout.html'+(qs?'?'+qs:'');})();"
+                  onclick="goToCheckout()"
                   class="block w-full py-4 px-6 rounded-xl bg-[#00d632] hover:bg-[#00b82b] text-white font-black text-xl sm:text-2xl uppercase tracking-wider text-center shadow-2xl transition-all duration-300 animate-pulse-btn"
                 >
                   ACESSAR O SISTEMA
@@ -1432,6 +1452,22 @@
         ctaContainer.classList.remove('hidden');
         ctaContainer.classList.add('block');
       }
+    }
+
+    // --- UTM-PRESERVING CHECKOUT REDIRECT ---
+    function goToCheckout() {
+      var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck'];
+      var urlParams = new URLSearchParams(window.location.search);
+      var out = new URLSearchParams();
+
+      UTM_KEYS.forEach(function(k) {
+        // Priority: current URL > localStorage
+        var val = urlParams.get(k) || localStorage.getItem('plt_' + k) || '';
+        if (val) out.set(k, val);
+      });
+
+      var qs = out.toString();
+      window.location.href = 'checkout.html' + (qs ? '?' + qs : '');
     }
 
     // --- MAIN RENDER ROUTER ---
