@@ -57,7 +57,8 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { name, email, phone, bump1, bump2, bump3 } = req.body;
+    const { name, email, phone, bump1, bump2, bump3,
+            utm_source, utm_medium, utm_campaign, utm_content, utm_term, src } = req.body;
 
     if (!name || !email || !phone) {
       return res.status(400).json({ error: 'Nome, E-mail e Telefone são obrigatórios.' });
@@ -128,7 +129,14 @@ module.exports = async function handler(req, res) {
       },
       cart: cart,
       expire_in_days: 1,
-      transaction_origin: "api"
+      transaction_origin: "api",
+      // UTM tracking params forwarded from the frontend
+      utm_source: utm_source || null,
+      utm_medium: utm_medium || null,
+      utm_campaign: utm_campaign || null,
+      utm_content: utm_content || null,
+      utm_term: utm_term || null,
+      src: src || null
     };
 
     const apiToken = CONFIG.IRONPAY_API_TOKEN;
