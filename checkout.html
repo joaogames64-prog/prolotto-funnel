@@ -400,6 +400,18 @@
     let currentTransactionHash = null;
     let pollStatusInterval = null;
 
+    // --- UTM CAPTURE (reads from URL and persists in sessionStorage as fallback) ---
+    const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'src'];
+    const _urlParams = new URLSearchParams(window.location.search);
+    const utmData = {};
+    UTM_KEYS.forEach(k => {
+      const val = _urlParams.get(k) || sessionStorage.getItem('prolotto_' + k) || '';
+      if (val) {
+        utmData[k] = val;
+        sessionStorage.setItem('prolotto_' + k, val); // persist across page reloads
+      }
+    });
+
     // Countdown Timer Logic
     setInterval(() => {
       if (countdownSeconds > 0) {
@@ -502,7 +514,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           signal: controller.signal,
-          body: JSON.stringify({ name, email, phone, bump1: bump1Checked, bump2: bump2Checked, bump3: bump3Checked })
+          body: JSON.stringify({ name, email, phone, bump1: bump1Checked, bump2: bump2Checked, bump3: bump3Checked, ...utmData })
         });
 
         clearTimeout(timeoutId);
