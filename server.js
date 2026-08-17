@@ -64,7 +64,7 @@ const server = http.createServer(async (req, res) => {
     req.on('end', async () => {
       try {
         const payload = JSON.parse(body);
-        const { name, email, phone, bump1, bump2 } = payload;
+        const { name, email, phone, bump1, bump2, bump3 } = payload;
 
         if (!name || !email || !phone) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -113,6 +113,24 @@ const server = http.createServer(async (req, res) => {
           totalAmountCents += CONFIG.ORDER_BUMP_2.price;
         }
 
+        // Extract tracking data
+        const trackingData = {
+          utm_source: payload.utm_source || '',
+          utm_medium: payload.utm_medium || '',
+          utm_campaign: payload.utm_campaign || '',
+          utm_content: payload.utm_content || '',
+          utm_term: payload.utm_term || '',
+          src: payload.src || '',
+          sck: payload.sck || '',
+          fbclid: payload.fbclid || '',
+          gclid: payload.gclid || ''
+        };
+
+        const metadata = {};
+        Object.entries(trackingData).forEach(([k, v]) => {
+          if (v) metadata[k] = v;
+        });
+
         const ironpayPayload = {
           amount: totalAmountCents,
           offer_hash: CONFIG.MAIN_PRODUCT.offer_hash,
@@ -125,7 +143,17 @@ const server = http.createServer(async (req, res) => {
           },
           cart: cart,
           expire_in_days: 1,
-          transaction_origin: "api"
+          transaction_origin: "api",
+          utm_source: payload.utm_source || null,
+          utm_medium: payload.utm_medium || null,
+          utm_campaign: payload.utm_campaign || null,
+          utm_content: payload.utm_content || null,
+          utm_term: payload.utm_term || null,
+          src: payload.src || null,
+          sck: payload.sck || null,
+          fbclid: payload.fbclid || null,
+          gclid: payload.gclid || null,
+          metadata: Object.keys(metadata).length > 0 ? metadata : undefined
         };
 
         const apiToken = CONFIG.IRONPAY_API_TOKEN;

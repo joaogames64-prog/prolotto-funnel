@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const { name, email, phone, bump1, bump2, bump3,
-            utm_source, utm_medium, utm_campaign, utm_content, utm_term, src } = req.body;
+            utm_source, utm_medium, utm_campaign, utm_content, utm_term, src, sck, fbclid, gclid } = req.body;
 
     if (!name || !email || !phone) {
       return res.status(400).json({ error: 'Nome, E-mail e Telefone são obrigatórios.' });
@@ -117,6 +117,24 @@ module.exports = async function handler(req, res) {
       totalAmountCents += CONFIG.ORDER_BUMP_3.price;
     }
 
+    // Build metadata dictionary for tracking attribution
+    const trackingData = {
+      utm_source: utm_source || '',
+      utm_medium: utm_medium || '',
+      utm_campaign: utm_campaign || '',
+      utm_content: utm_content || '',
+      utm_term: utm_term || '',
+      src: src || '',
+      sck: sck || '',
+      fbclid: fbclid || '',
+      gclid: gclid || ''
+    };
+
+    const metadata = {};
+    Object.entries(trackingData).forEach(([k, v]) => {
+      if (v) metadata[k] = v;
+    });
+
     const ironpayPayload = {
       amount: totalAmountCents,
       offer_hash: CONFIG.MAIN_PRODUCT.offer_hash,
@@ -130,13 +148,17 @@ module.exports = async function handler(req, res) {
       cart: cart,
       expire_in_days: 1,
       transaction_origin: "api",
-      // UTM tracking params forwarded from the frontend
+      // UTM tracking params forwarded from the frontend (both top-level and metadata)
       utm_source: utm_source || null,
       utm_medium: utm_medium || null,
       utm_campaign: utm_campaign || null,
       utm_content: utm_content || null,
       utm_term: utm_term || null,
-      src: src || null
+      src: src || null,
+      sck: sck || null,
+      fbclid: fbclid || null,
+      gclid: gclid || null,
+      metadata: Object.keys(metadata).length > 0 ? metadata : undefined
     };
 
     const apiToken = CONFIG.IRONPAY_API_TOKEN;
