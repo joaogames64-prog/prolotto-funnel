@@ -400,34 +400,48 @@
     let currentTransactionHash = null;
     let pollStatusInterval = null;
 
-    // --- UTM CAPTURE - Triple-layer fallback: URL > localStorage > sessionStorage ---
-    (function() {
-      var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck'];
-      var params = new URLSearchParams(window.location.search);
+    // --- UTM CAPTURE & PERSISTENCE HELPER ---
+    function getUtmData() {
+      var keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck','click_id','lwtrk'];
+      var result = {};
+      var searchParams = new URLSearchParams(window.location.search);
+      var hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-      // Save any UTMs present in the current URL to both storages
-      UTM_KEYS.forEach(function(k) {
-        var urlVal = params.get(k);
-        if (urlVal) {
-          localStorage.setItem('plt_' + k, urlVal);
-          sessionStorage.setItem('plt_' + k, urlVal);
+      var cookies = {};
+      (document.cookie || '').split(';').forEach(function(c) {
+        var parts = c.split('=');
+        if (parts.length === 2) cookies[parts[0].trim()] = decodeURIComponent(parts[1].trim());
+      });
+
+      keys.forEach(function(k) {
+        var val = searchParams.get(k)
+               || hashParams.get(k)
+               || localStorage.getItem('plt_' + k)
+               || localStorage.getItem(k)
+               || localStorage.getItem('_' + k)
+               || sessionStorage.getItem('plt_' + k)
+               || sessionStorage.getItem(k)
+               || sessionStorage.getItem('_' + k)
+               || cookies['plt_' + k]
+               || cookies[k]
+               || cookies['_' + k]
+               || '';
+        if (val) {
+          result[k] = val;
+          try {
+            localStorage.setItem('plt_' + k, val);
+            localStorage.setItem(k, val);
+            sessionStorage.setItem('plt_' + k, val);
+            sessionStorage.setItem(k, val);
+          } catch(e) {}
         }
       });
-    })();
-
-    // Build utmData object from best available source
-    var utmData = (function() {
-      var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck'];
-      var params = new URLSearchParams(window.location.search);
-      var result = {};
-      UTM_KEYS.forEach(function(k) {
-        var val = params.get(k)                         // 1. URL param (highest priority)
-               || localStorage.getItem('plt_' + k)     // 2. localStorage (set by landing page)
-               || sessionStorage.getItem('plt_' + k)   // 3. sessionStorage
-               || '';
-        if (val) result[k] = val;
-      });
       return result;
+    }
+
+    // Auto-run on page load to capture any URL params
+    (function() {
+      getUtmData();
     })();
 
     // Countdown Timer Logic
@@ -527,12 +541,24 @@
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+      // Gather latest tracking parameters live at click time
+      const currentUtms = getUtmData();
+      console.log('[PIX GENERATION] UTM Data live payload:', currentUtms);
+
       try {
         const response = await fetch('/api/create-pix-transaction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           signal: controller.signal,
-          body: JSON.stringify({ name, email, phone, bump1: bump1Checked, bump2: bump2Checked, bump3: bump3Checked, ...utmData })
+          body: JSON.stringify({ 
+            name, 
+            email, 
+            phone, 
+            bump1: bump1Checked, 
+            bump2: bump2Checked, 
+            bump3: bump3Checked, 
+            ...currentUtms 
+          })
         });
 
         clearTimeout(timeoutId);

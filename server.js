@@ -113,24 +113,6 @@ const server = http.createServer(async (req, res) => {
           totalAmountCents += CONFIG.ORDER_BUMP_2.price;
         }
 
-        // Extract tracking data
-        const trackingData = {
-          utm_source: payload.utm_source || '',
-          utm_medium: payload.utm_medium || '',
-          utm_campaign: payload.utm_campaign || '',
-          utm_content: payload.utm_content || '',
-          utm_term: payload.utm_term || '',
-          src: payload.src || '',
-          sck: payload.sck || '',
-          fbclid: payload.fbclid || '',
-          gclid: payload.gclid || ''
-        };
-
-        const metadata = {};
-        Object.entries(trackingData).forEach(([k, v]) => {
-          if (v) metadata[k] = v;
-        });
-
         const ironpayPayload = {
           amount: totalAmountCents,
           offer_hash: CONFIG.MAIN_PRODUCT.offer_hash,
@@ -143,18 +125,32 @@ const server = http.createServer(async (req, res) => {
           },
           cart: cart,
           expire_in_days: 1,
-          transaction_origin: "api",
-          utm_source: payload.utm_source || null,
-          utm_medium: payload.utm_medium || null,
-          utm_campaign: payload.utm_campaign || null,
-          utm_content: payload.utm_content || null,
-          utm_term: payload.utm_term || null,
-          src: payload.src || null,
-          sck: payload.sck || null,
-          fbclid: payload.fbclid || null,
-          gclid: payload.gclid || null,
-          metadata: Object.keys(metadata).length > 0 ? metadata : undefined
+          transaction_origin: "api"
         };
+
+        // Build tracking data: top-level, metadata, and custom_fields for IronPay dashboard
+        const trackingKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'src', 'sck', 'fbclid', 'gclid', 'click_id', 'lwtrk'];
+        const metadata = {};
+        const customFields = [];
+
+        trackingKeys.forEach(k => {
+          const val = payload[k] || (payload.utmData && payload.utmData[k]);
+          if (val && typeof val === 'string' && val.trim() !== '') {
+            const cleanVal = val.trim();
+            metadata[k] = cleanVal;
+            ironpayPayload[k] = cleanVal;
+            customFields.push({
+              display_name: k.toUpperCase(),
+              variable_name: k,
+              value: cleanVal
+            });
+          }
+        });
+
+        if (Object.keys(metadata).length > 0) {
+          ironpayPayload.metadata = metadata;
+          ironpayPayload.custom_fields = customFields;
+        }
 
         const apiToken = CONFIG.IRONPAY_API_TOKEN;
 

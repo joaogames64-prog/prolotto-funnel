@@ -25,23 +25,49 @@
     document.head.appendChild(a);
   </script>
 
-  <!-- UTM CAPTURE - Runs immediately, saves to localStorage for cross-page persistence -->
+  <!-- UTM CAPTURE & PERSISTENCE HELPER -->
   <script>
-    (function() {
-      var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck'];
-      var params = new URLSearchParams(window.location.search);
-      var stored = {};
-      UTM_KEYS.forEach(function(k) {
-        var val = params.get(k);
+    function getUtmData() {
+      var keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck','click_id','lwtrk'];
+      var result = {};
+      var searchParams = new URLSearchParams(window.location.search);
+      var hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+      var cookies = {};
+      (document.cookie || '').split(';').forEach(function(c) {
+        var parts = c.split('=');
+        if (parts.length === 2) cookies[parts[0].trim()] = decodeURIComponent(parts[1].trim());
+      });
+
+      keys.forEach(function(k) {
+        var val = searchParams.get(k)
+               || hashParams.get(k)
+               || localStorage.getItem('plt_' + k)
+               || localStorage.getItem(k)
+               || localStorage.getItem('_' + k)
+               || sessionStorage.getItem('plt_' + k)
+               || sessionStorage.getItem(k)
+               || sessionStorage.getItem('_' + k)
+               || cookies['plt_' + k]
+               || cookies[k]
+               || cookies['_' + k]
+               || '';
         if (val) {
-          localStorage.setItem('plt_' + k, val);
-          stored[k] = val;
+          result[k] = val;
+          try {
+            localStorage.setItem('plt_' + k, val);
+            localStorage.setItem(k, val);
+            sessionStorage.setItem('plt_' + k, val);
+            sessionStorage.setItem(k, val);
+          } catch(e) {}
         }
       });
-      // Always update timestamp when new UTMs arrive
-      if (Object.keys(stored).length > 0) {
-        localStorage.setItem('plt_ts', Date.now().toString());
-      }
+      return result;
+    }
+
+    // Auto-run on load
+    (function() {
+      getUtmData();
     })();
   </script>
 
@@ -1456,18 +1482,18 @@
 
     // --- UTM-PRESERVING CHECKOUT REDIRECT ---
     function goToCheckout() {
-      var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck'];
-      var urlParams = new URLSearchParams(window.location.search);
+      var utms = getUtmData();
       var out = new URLSearchParams();
-
-      UTM_KEYS.forEach(function(k) {
-        // Priority: current URL > localStorage
-        var val = urlParams.get(k) || localStorage.getItem('plt_' + k) || '';
-        if (val) out.set(k, val);
+      Object.keys(utms).forEach(function(k) {
+        if (utms[k]) out.set(k, utms[k]);
       });
 
       var qs = out.toString();
       window.location.href = 'checkout.html' + (qs ? '?' + qs : '');
+    }
+
+    function navigateToCheckout() {
+      goToCheckout();
     }
 
     // --- MAIN RENDER ROUTER ---

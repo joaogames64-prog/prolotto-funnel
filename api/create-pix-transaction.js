@@ -117,24 +117,6 @@ module.exports = async function handler(req, res) {
       totalAmountCents += CONFIG.ORDER_BUMP_3.price;
     }
 
-    // Build metadata dictionary for tracking attribution
-    const trackingData = {
-      utm_source: utm_source || '',
-      utm_medium: utm_medium || '',
-      utm_campaign: utm_campaign || '',
-      utm_content: utm_content || '',
-      utm_term: utm_term || '',
-      src: src || '',
-      sck: sck || '',
-      fbclid: fbclid || '',
-      gclid: gclid || ''
-    };
-
-    const metadata = {};
-    Object.entries(trackingData).forEach(([k, v]) => {
-      if (v) metadata[k] = v;
-    });
-
     const ironpayPayload = {
       amount: totalAmountCents,
       offer_hash: CONFIG.MAIN_PRODUCT.offer_hash,
@@ -147,19 +129,32 @@ module.exports = async function handler(req, res) {
       },
       cart: cart,
       expire_in_days: 1,
-      transaction_origin: "api",
-      // UTM tracking params forwarded from the frontend (both top-level and metadata)
-      utm_source: utm_source || null,
-      utm_medium: utm_medium || null,
-      utm_campaign: utm_campaign || null,
-      utm_content: utm_content || null,
-      utm_term: utm_term || null,
-      src: src || null,
-      sck: sck || null,
-      fbclid: fbclid || null,
-      gclid: gclid || null,
-      metadata: Object.keys(metadata).length > 0 ? metadata : undefined
+      transaction_origin: "api"
     };
+
+    // Build tracking data: top-level, metadata, and custom_fields for IronPay dashboard
+    const trackingKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'src', 'sck', 'fbclid', 'gclid', 'click_id', 'lwtrk'];
+    const metadata = {};
+    const customFields = [];
+
+    trackingKeys.forEach(k => {
+      const val = req.body[k] || (req.body.utmData && req.body.utmData[k]);
+      if (val && typeof val === 'string' && val.trim() !== '') {
+        const cleanVal = val.trim();
+        metadata[k] = cleanVal;
+        ironpayPayload[k] = cleanVal;
+        customFields.push({
+          display_name: k.toUpperCase(),
+          variable_name: k,
+          value: cleanVal
+        });
+      }
+    });
+
+    if (Object.keys(metadata).length > 0) {
+      ironpayPayload.metadata = metadata;
+      ironpayPayload.custom_fields = customFields;
+    }
 
     const apiToken = CONFIG.IRONPAY_API_TOKEN;
     const apiUrl = `https://api.ironpayapp.com.br/api/public/v1/transactions?api_token=${encodeURIComponent(apiToken)}`;
