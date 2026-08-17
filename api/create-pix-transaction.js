@@ -57,8 +57,14 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { name, email, phone, bump1, bump2, bump3,
-            utm_source, utm_medium, utm_campaign, utm_content, utm_term, src, sck, fbclid, gclid } = req.body;
+    let bodyObj = req.body || {};
+    if (typeof bodyObj === 'string') {
+      try {
+        bodyObj = JSON.parse(bodyObj);
+      } catch(e) {}
+    }
+
+    const { name, email, phone, bump1, bump2, bump3 } = bodyObj;
 
     if (!name || !email || !phone) {
       return res.status(400).json({ error: 'Nome, E-mail e Telefone são obrigatórios.' });
@@ -117,32 +123,16 @@ module.exports = async function handler(req, res) {
       totalAmountCents += CONFIG.ORDER_BUMP_3.price;
     }
 
-    const ironpayPayload = {
-      amount: totalAmountCents,
-      offer_hash: CONFIG.MAIN_PRODUCT.offer_hash,
-      payment_method: "pix",
-      customer: {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phone_number: phone.replace(/\D/g, ''),
-        document: validCpf
-      },
-      cart: cart,
-      expire_in_days: 1,
-      transaction_origin: "api"
-    };
-
-    // Build tracking data: top-level, metadata, and custom_fields for IronPay dashboard
-    const trackingKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'src', 'sck', 'fbclid', 'gclid', 'click_id', 'lwtrk'];
-    const metadata = {};
+    // Extract all tracking parameters
+    const trackingKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'src', 'sck', 'fbclid', 'gclid', 'click_id', 'lwtrk', 'sub1', 'sub2', 'sub3', 'sub4', 'sub5'];
+    const trackingData = {};
     const customFields = [];
 
     trackingKeys.forEach(k => {
-      const val = req.body[k] || (req.body.utmData && req.body.utmData[k]);
+      const val = bodyObj[k] || (bodyObj.utmData && bodyObj.utmData[k]);
       if (val && typeof val === 'string' && val.trim() !== '') {
         const cleanVal = val.trim();
-        metadata[k] = cleanVal;
-        ironpayPayload[k] = cleanVal;
+        trackingData[k] = cleanVal;
         customFields.push({
           display_name: k.toUpperCase(),
           variable_name: k,
@@ -151,10 +141,28 @@ module.exports = async function handler(req, res) {
       }
     });
 
-    if (Object.keys(metadata).length > 0) {
-      ironpayPayload.metadata = metadata;
-      ironpayPayload.custom_fields = customFields;
-    }
+    const ironpayPayload = {
+      amount: totalAmountCents,
+      offer_hash: CONFIG.MAIN_PRODUCT.offer_hash,
+      payment_method: "pix",
+      customer: {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone_number: phone.replace(/\D/g, ''),
+        document: validCpf,
+        ...trackingData
+      },
+      cart: cart,
+      expire_in_days: 1,
+      transaction_origin: "api",
+      ...trackingData,
+      metadata: Object.keys(trackingData).length > 0 ? trackingData : undefined,
+      tracking: Object.keys(trackingData).length > 0 ? trackingData : undefined,
+      utm: Object.keys(trackingData).length > 0 ? trackingData : undefined,
+      custom_fields: customFields.length > 0 ? customFields : undefined
+    };
+
+    console.log('[IRONPAY PAYLOAD ALL FIELDS]:', JSON.stringify(ironpayPayload, null, 2));
 
     const apiToken = CONFIG.IRONPAY_API_TOKEN;
     const apiUrl = `https://api.ironpayapp.com.br/api/public/v1/transactions?api_token=${encodeURIComponent(apiToken)}`;

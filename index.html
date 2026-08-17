@@ -28,7 +28,7 @@
   <!-- UTM CAPTURE & PERSISTENCE HELPER -->
   <script>
     function getUtmData() {
-      var keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck','click_id','lwtrk'];
+      var keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','fbclid','gclid','sck','click_id','lwtrk','sub1','sub2','sub3','sub4','sub5'];
       var result = {};
       var searchParams = new URLSearchParams(window.location.search);
       var hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -62,6 +62,43 @@
           } catch(e) {}
         }
       });
+
+      // Deep scan localStorage for any utm or lowtrack keys
+      try {
+        for (var i = 0; i < localStorage.length; i++) {
+          var lk = localStorage.key(i);
+          if (lk && (lk.indexOf('utm') !== -1 || lk.indexOf('lt_') !== -1 || lk.indexOf('lowtrack') !== -1 || lk.indexOf('click') !== -1 || lk.indexOf('src') !== -1 || lk.indexOf('sck') !== -1)) {
+            var lv = localStorage.getItem(lk);
+            if (lv && typeof lv === 'string' && lv.length < 250) {
+              var cleanKey = lk.replace(/^plt_/, '').replace(/^_/, '');
+              if (!result[cleanKey]) result[cleanKey] = lv;
+            }
+          }
+        }
+      } catch(e) {}
+
+      // Organic Referrer Fallback
+      if (!result['utm_source'] && !result['src']) {
+        var ref = document.referrer || '';
+        if (ref) {
+          if (ref.indexOf('facebook.com') !== -1 || ref.indexOf('fb.me') !== -1) {
+            result['utm_source'] = 'facebook';
+            result['src'] = 'facebook_organic';
+          } else if (ref.indexOf('instagram.com') !== -1) {
+            result['utm_source'] = 'instagram';
+            result['src'] = 'instagram_organic';
+          } else if (ref.indexOf('google.') !== -1) {
+            result['utm_source'] = 'google';
+            result['src'] = 'google_organic';
+          } else if (ref.indexOf('tiktok.com') !== -1) {
+            result['utm_source'] = 'tiktok';
+            result['src'] = 'tiktok_organic';
+          } else if (ref.indexOf(window.location.hostname) === -1) {
+            result['src'] = ref.substring(0, 100);
+          }
+        }
+      }
+
       return result;
     }
 
