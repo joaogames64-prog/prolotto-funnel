@@ -73,6 +73,32 @@
     </div>
   </div>
 
+  <!-- Exit Intent Modal (Checkout) -->
+  <div id="checkout-exit-modal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm hidden items-end justify-center sm:items-center p-4" style="display:none;">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center" style="animation: fadeInUp 0.4s ease-out forwards;">
+      <div class="text-4xl mb-3">😱</div>
+      <h3 class="text-xl font-black text-slate-900 mb-2 leading-tight">Tem certeza que quer sair?</h3>
+      <p class="text-sm text-slate-600 mb-4 leading-relaxed">Seu desconto de <span class="font-black text-red-500">62%</span> será perdido e o valor volta para <span class="font-black">R$ 97,00</span>. Essa é sua única chance de garantir por R$ 37.</p>
+      <button onclick="document.getElementById('checkout-exit-modal').style.display='none';" class="w-full py-3.5 rounded-xl bg-[#2ac473] text-white font-black text-base uppercase tracking-wide shadow-lg mb-2">
+        QUERO MANTER MEU DESCONTO
+      </button>
+      <button onclick="document.getElementById('checkout-exit-modal').style.display='none'; history.back();" class="text-xs text-slate-400 underline">
+        Não, prefiro pagar R$ 97 depois
+      </button>
+    </div>
+  </div>
+
+  <!-- Sticky Mobile CTA Bar -->
+  <div id="sticky-mobile-cta" class="fixed bottom-0 left-0 w-full z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 flex items-center justify-between gap-3 shadow-2xl lg:hidden" style="display:none;">
+    <div class="text-left">
+      <span class="text-[10px] text-slate-400 line-through block">R$ 97,00</span>
+      <span id="sticky-total" class="font-black text-lg text-[#2ac473]">R$ 37,00</span>
+    </div>
+    <button onclick="gerarPix()" class="flex-1 max-w-[220px] py-3 rounded-xl bg-[#2ac473] text-white font-black text-sm uppercase tracking-wider shadow-lg animate-pulse-btn">
+      GERAR PIX AGORA
+    </button>
+  </div>
+
   <!-- 1. TOP EMERGENCY BAR -->
   <div class="w-full bg-[#f34a4a] text-black py-2.5 px-4 text-center font-extrabold text-xs sm:text-sm tracking-wide uppercase shadow-md flex items-center justify-center gap-2">
     <span>⚠️ OFERTA POR TEMPO LIMITADO! SEU DESCONTO EXPIRA EM:</span>
@@ -334,6 +360,15 @@
           >
             GERAR CÓDIGO PIX
           </button>
+
+          <!-- Guarantee Badge -->
+          <div class="mt-3 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl py-2.5 px-4">
+            <span class="text-lg">🛡️</span>
+            <div class="text-left">
+              <p class="text-[11px] font-black text-green-700 leading-tight">GARANTIA INCONDICIONAL DE 30 DIAS</p>
+              <p class="text-[10px] text-green-600">Se não gostar, devolvemos 100% do valor. Sem perguntas.</p>
+            </div>
+          </div>
 
           <!-- Scarcity Bar -->
           <div class="mt-3 w-full">
@@ -813,6 +848,49 @@
           if (barEl) barEl.style.width = pct + '%';
         }, 45000); // one less every 45s
       }, 20000); // start after 20s
+    })();
+
+    // --- Sticky Mobile CTA: show after scrolling past main CTA ---
+    (function() {
+      const observer = new IntersectionObserver((entries) => {
+        const stickyBar = document.getElementById('sticky-mobile-cta');
+        if (!stickyBar) return;
+        // Show sticky when main CTA is NOT visible
+        stickyBar.style.display = entries[0].isIntersecting ? 'none' : 'flex';
+      }, { threshold: 0 });
+
+      setTimeout(() => {
+        const mainBtn = document.getElementById('btn-submit-checkout');
+        if (mainBtn) observer.observe(mainBtn);
+      }, 500);
+    })();
+
+    // --- Update sticky total when bumps change ---
+    const origUpdateTotal = updateTotal;
+    updateTotal = function() {
+      origUpdateTotal();
+      const stickyTotal = document.getElementById('sticky-total');
+      const mainTotal = document.getElementById('total-price-display');
+      if (stickyTotal && mainTotal) stickyTotal.innerText = mainTotal.innerText;
+    };
+
+    // --- Auto-focus name field ---
+    setTimeout(() => {
+      const nameInput = document.getElementById('input-name');
+      if (nameInput && window.innerWidth > 768) nameInput.focus();
+    }, 800);
+
+    // --- Exit Intent (back button) ---
+    (function() {
+      history.pushState(null, '', window.location.href);
+      let exitShown = false;
+      window.addEventListener('popstate', function(e) {
+        if (exitShown) { return; }
+        exitShown = true;
+        history.pushState(null, '', window.location.href);
+        const modal = document.getElementById('checkout-exit-modal');
+        if (modal) modal.style.display = 'flex';
+      });
     })();
   </script>
 </body>
