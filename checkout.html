@@ -53,10 +53,25 @@
       background-color: #cbd5e1;
       border-radius: 9999px;
     }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 
 <body class="min-h-screen flex flex-col items-center">
+
+  <!-- Social Proof Notification -->
+  <div id="checkout-social-proof" class="fixed bottom-4 left-3 z-50 max-w-[300px] hidden" style="transition: opacity 0.3s ease;">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl p-3 flex items-center gap-3" style="animation: fadeInUp 0.4s ease-out forwards;">
+      <div class="w-9 h-9 rounded-full bg-[#2ac473]/10 flex items-center justify-center shrink-0 text-lg">✅</div>
+      <div class="min-w-0">
+        <p id="checkout-proof-text" class="text-xs font-bold text-slate-800 leading-tight"></p>
+        <p class="text-[10px] text-slate-400 font-medium mt-0.5">há poucos segundos</p>
+      </div>
+    </div>
+  </div>
 
   <!-- 1. TOP EMERGENCY BAR -->
   <div class="w-full bg-[#f34a4a] text-black py-2.5 px-4 text-center font-extrabold text-xs sm:text-sm tracking-wide uppercase shadow-md flex items-center justify-center gap-2">
@@ -714,6 +729,49 @@
         }
       }, 5000);
     }
+
+    // --- Social Proof Notifications ---
+    (function() {
+      const msgs = [
+        "Carlos de São Paulo acabou de garantir o acesso",
+        "Fernanda do RJ finalizou a compra agora",
+        "Marcos de BH liberou o sistema ProLotto",
+        "Juliana de Curitiba garantiu o desconto",
+        "Roberto de Fortaleza acabou de comprar",
+        "Ana de Porto Alegre ativou a IA agora",
+        "Diego de Brasília garantiu seu acesso",
+        "Patrícia de Salvador finalizou o pedido",
+        "Lucas de Recife acabou de entrar",
+        "Camila de Manaus garantiu o preço especial",
+        "Thiago de Goiânia ativou o ProLotto agora",
+        "Renata de Florianópolis comprou há 2 min"
+      ];
+      let idx = Math.floor(Math.random() * msgs.length);
+
+      function showProof() {
+        const box = document.getElementById('checkout-social-proof');
+        const text = document.getElementById('checkout-proof-text');
+        if (!box || !text) return;
+
+        idx = (idx + 1) % msgs.length;
+        text.innerText = msgs[idx];
+        box.classList.remove('hidden');
+
+        // Re-trigger animation
+        const inner = box.querySelector('div');
+        inner.style.animation = 'none';
+        void inner.offsetWidth;
+        inner.style.animation = 'fadeInUp 0.4s ease-out forwards';
+
+        setTimeout(() => { box.classList.add('hidden'); }, 4500);
+      }
+
+      // First after 6s, then every 15s
+      setTimeout(() => {
+        showProof();
+        setInterval(showProof, 15000);
+      }, 6000);
+    })();
   </script>
 </body>
 </html>
