@@ -201,7 +201,6 @@
                 <input
                   type="checkbox"
                   id="bump-1"
-                  checked
                   onchange="updateTotal()"
                   class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0"
                 />
@@ -591,9 +590,6 @@
       summaryList.innerHTML = itemsHtml;
       document.getElementById('total-price-display').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
     }
-
-    // Initialize total on page load (bump-1 is pre-checked)
-    setTimeout(() => updateTotal(), 0);
 
     // Main PIX Generation Function (called directly by button onclick)
     async function gerarPix() {
