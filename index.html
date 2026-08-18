@@ -1450,6 +1450,14 @@
 
       return `
         <div class="min-h-screen w-full flex flex-col items-center bg-white font-sans overflow-x-hidden pb-12">
+
+          <!-- Retention Warning Banner -->
+          <div class="w-full bg-[#0d1117] border-b-2 border-yellow-500/30 py-3 px-4 text-center" style="background: linear-gradient(135deg, #0a0f1e 0%, #0d1117 50%, #0a0f1e 100%);">
+            <p class="text-yellow-400 font-black italic text-sm sm:text-base leading-snug tracking-wide" style="font-style: italic; text-shadow: 0 0 20px rgba(250,204,21,0.3);">
+              ⚠️ Não saia e não atualize esta página. Sua análise personalizada<br class="hidden sm:block"> está sendo processada <span class="text-yellow-300">neste exato momento.</span>
+            </p>
+          </div>
+
           <div class="w-full max-w-lg mx-auto flex flex-col p-2 py-4 animate-fade-in-up">
             <div class="shrink-0 text-center mb-2">
               <h1 class="text-2xl font-black uppercase text-[#6d28d9] flex items-center justify-center gap-2 leading-none mb-1">
