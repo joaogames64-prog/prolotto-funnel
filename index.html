@@ -371,6 +371,14 @@
 
           <!-- Content -->
           <div class="flex-grow w-full max-w-md mx-auto p-4 flex flex-col justify-evenly items-center text-center relative z-10">
+            <!-- Live Counter -->
+            <div class="w-full flex justify-center mb-3">
+              <div class="inline-flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-3 py-1.5">
+                <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                <span class="text-[11px] font-black text-red-600 uppercase tracking-wide">AO VIVO: <span id="hero-live-count">847</span> pessoas no simulador agora</span>
+              </div>
+            </div>
+
             <div class="flex flex-col items-center">
               <div class="mb-2 relative">
                 <div class="w-16 h-16 rounded-full bg-white border-[4px] border-[#16a34a] flex items-center justify-center shadow-sm">
@@ -379,14 +387,14 @@
                   </svg>
                 </div>
               </div>
-              <h1 class="text-4xl sm:text-5xl font-extrabold text-[#005da8] mb-2 tracking-tight leading-none drop-shadow-sm uppercase">PARABÉNS!</h1>
-              <div class="text-slate-800 text-base sm:text-lg leading-relaxed font-bold px-2">
-                Descubra como acertar <span class="text-[#005da8] font-extrabold">14 pontos na</span> <span class="text-[#16a34a] font-extrabold">LOTOFÁCIL</span> e <span class="text-[#005da8] font-extrabold">5 pontos na</span> <span class="text-[#16a34a] font-extrabold">MEGA-SENA</span> usando IA da ProLotto!
+              <h1 class="text-3xl sm:text-4xl font-extrabold text-[#005da8] mb-2 tracking-tight leading-none drop-shadow-sm uppercase">ATENÇÃO</h1>
+              <div class="text-slate-800 text-sm sm:text-base leading-relaxed font-bold px-2">
+                Este simulador revela por que <span class="text-red-600 font-extrabold">97% dos apostadores NUNCA ganham</span> na loteria e como os outros 3% estão <span class="text-[#16a34a] font-extrabold">lucrando toda semana</span> com um método que quase ninguém conhece.
               </div>
             </div>
 
             <p class="text-slate-600 font-bold my-2 text-sm sm:text-base flex items-center justify-center gap-1.5 uppercase tracking-wider">
-              Teste já o simulador da ProLotto <span class="text-lg">👇</span>
+              Faça o teste agora e veja com seus próprios olhos <span class="text-lg">👇</span>
             </p>
 
             <div class="bg-white rounded-2xl p-4 w-full shadow-lg border border-slate-100 text-left relative">
@@ -777,13 +785,13 @@
                 </div>
               ` : `
                 <div class="text-center animate-fade-in-up">
-                  <h3 class="text-2xl font-black text-red-600 mb-1">Você teve ${state.simHits} acerto${state.simHits !== 1 ? 's' : ''}.</h3>
-                  <p class="text-base text-red-400 font-bold mb-4">Não foi dessa vez, tente na próxima rodada!</p>
+                  <h3 class="text-2xl font-black text-red-600 mb-1">${state.simHits} acerto${state.simHits !== 1 ? 's' : ''}.</h3>
+                  <p class="text-sm text-red-400 font-bold mb-4">É exatamente assim que 97% das pessoas jogam. No escuro, perdendo dinheiro toda semana.</p>
                   <button
                     onclick="nextSimRound()"
                     class="w-full py-4 rounded-xl bg-[#005da8] text-white text-base font-black uppercase tracking-widest shadow-lg hover:bg-[#004a87] transition-all active:scale-95"
                   >
-                    CONTINUAR
+                    ${state.simRound === 1 ? 'TENTAR DE NOVO' : 'VER COMO RESOLVER ISSO'}
                   </button>
                 </div>
               `}
@@ -821,13 +829,10 @@
       const rand = Math.random();
 
       if (lottery.id === 'lotofacil') {
-        hitsCount = state.simRound === 1 ? 10 : 11;
+        hitsCount = state.simRound === 1 ? 8 : 9;
       } else {
-        if (state.simRound === 1) {
-          hitsCount = rand < 0.4 ? 0 : rand < 0.8 ? 1 : 2;
-        } else {
-          hitsCount = rand < 0.6 ? 0 : 1;
-        }
+        // Force 0 hits to maximize frustration contrast with AI
+        hitsCount = 0;
       }
 
       // Pick hit numbers from user's selection
@@ -1193,13 +1198,29 @@
               <span class="text-4xl">🏆</span>
             </div>
 
-            <h1 class="text-3xl font-black mb-3 leading-tight">Você foi incrível!</h1>
-            <p class="text-green-100 text-base mb-5 leading-relaxed">Viu como com a ajuda da IA seus resultados foram muito superiores?</p>
+            <h1 class="text-3xl font-black mb-3 leading-tight">Você viu a diferença?</h1>
+            <p class="text-green-100 text-base mb-4 leading-relaxed">Olha o que acontece quando você para de jogar no escuro:</p>
 
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 w-full border border-white/10 mb-5 shadow-2xl">
-              <p class="text-sm font-bold text-green-200 uppercase tracking-widest mb-2">Com nossa IA, você ganhou:</p>
-              <div class="text-4xl font-black text-white mb-2">${formattedTotal}</div>
-              <p class="text-xs font-bold text-green-200 uppercase tracking-widest">em apenas 2 rodadas!</p>
+            <!-- Contrast Table -->
+            <div class="w-full grid grid-cols-2 gap-2 mb-4">
+              <div class="bg-red-500/20 border border-red-400/30 rounded-xl p-3 text-center">
+                <p class="text-[10px] font-bold text-red-300 uppercase tracking-wider mb-1">SEM IA</p>
+                <p class="text-2xl font-black text-red-400">0</p>
+                <p class="text-[10px] text-red-300">acertos</p>
+                <p class="text-lg font-black text-red-400 mt-1">R$ 0,00</p>
+              </div>
+              <div class="bg-green-500/20 border border-green-400/30 rounded-xl p-3 text-center">
+                <p class="text-[10px] font-bold text-green-300 uppercase tracking-wider mb-1">COM IA</p>
+                <p class="text-2xl font-black text-green-400">${state.aiHits || 5}</p>
+                <p class="text-[10px] text-green-300">acertos</p>
+                <p class="text-lg font-black text-green-400 mt-1">${formattedTotal}</p>
+              </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 w-full border border-white/10 mb-5 shadow-2xl">
+              <p class="text-sm font-bold text-green-200 uppercase tracking-widest mb-2">Saldo total com a IA:</p>
+              <div class="text-4xl font-black text-white mb-1">${formattedTotal}</div>
+              <p class="text-xs font-bold text-green-200 uppercase tracking-widest">em apenas 2 rodadas</p>
             </div>
 
             <!-- Urgency Card -->
@@ -1334,6 +1355,11 @@
                   Seu perfil está muito próximo de um dos padrões considerados altamente promissores pelo nosso algoritmo.
                 </p>
               </div>
+              <div id="loading-rare-box" class="${state.loadingProgress > 80 ? 'block' : 'hidden'} bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-lg text-center mt-2 animate-fade-in-up">
+                <p class="text-yellow-400 text-sm font-black">
+                  ⚠️ ALERTA: Seu perfil corresponde ao padrão de GANHADORES FREQUENTES. Apenas 2.3% dos usuários recebem essa classificação.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1374,6 +1400,11 @@
           alertBox.classList.remove('hidden');
           alertBox.classList.add('block');
         }
+        const rareBox = document.getElementById('loading-rare-box');
+        if (rareBox && state.loadingProgress > 80) {
+          rareBox.classList.remove('hidden');
+          rareBox.classList.add('block');
+        }
       }, 50);
 
       loadingTimeout = setTimeout(() => {
@@ -1401,13 +1432,18 @@
       setTimeout(() => initVSLExtras(), 100);
 
       return `
-        <div class="min-h-screen w-full flex flex-col items-center bg-white font-sans overflow-x-hidden pb-12">
+        <div id="vsl-page-wrapper" class="min-h-screen w-full flex flex-col items-center bg-white font-sans overflow-x-hidden pb-12 ${isAlreadyUnlocked ? '' : 'overflow-y-hidden max-h-screen'}">
 
           <!-- Retention Warning Banner -->
           <div class="w-full bg-[#0d1117] border-b-2 border-yellow-500/30 py-3 px-4 text-center" style="background: linear-gradient(135deg, #0a0f1e 0%, #0d1117 50%, #0a0f1e 100%);">
             <p class="text-yellow-400 font-black italic text-sm sm:text-base leading-snug tracking-wide" style="font-style: italic; text-shadow: 0 0 20px rgba(250,204,21,0.3);">
               ⚠️ Não saia e não atualize esta página. Sua análise personalizada<br class="hidden sm:block"> está sendo processada <span class="text-yellow-300">neste exato momento.</span>
             </p>
+          </div>
+
+          <!-- Discount Timer -->
+          <div id="vsl-discount-bar" class="w-full bg-red-600 py-2 px-4 text-center">
+            <p class="text-white font-black text-sm tracking-wide">🔥 SEU DESCONTO DE 62% EXPIRA EM: <span id="vsl-discount-timer" class="bg-black/40 px-2 py-0.5 rounded font-mono text-base">10:00</span></p>
           </div>
 
           <!-- Social Proof Notification (injected by JS) -->
@@ -1513,6 +1549,8 @@
     ];
 
     function initVSLExtras() {
+      // Start discount timer
+      startVSLDiscountTimer();
       // Social Proof Ticker
       if (vslSocialProofInterval) clearInterval(vslSocialProofInterval);
       let msgIndex = Math.floor(Math.random() * VSL_SOCIAL_PROOF_MSGS.length);
@@ -1560,6 +1598,11 @@
       if (ctaContainer) {
         ctaContainer.classList.remove('hidden');
         ctaContainer.classList.add('block');
+      }
+      // Unlock scroll when CTA appears
+      const wrapper = document.getElementById('vsl-page-wrapper');
+      if (wrapper) {
+        wrapper.classList.remove('overflow-y-hidden', 'max-h-screen');
       }
     }
 
@@ -1619,9 +1662,51 @@
       appEl.innerHTML = html;
     }
 
+    // --- HERO LIVE COUNTER ---
+    let heroCounterInterval = null;
+    function startHeroCounter() {
+      if (heroCounterInterval) clearInterval(heroCounterInterval);
+      let count = 847;
+      heroCounterInterval = setInterval(() => {
+        const el = document.getElementById('hero-live-count');
+        if (!el) { clearInterval(heroCounterInterval); return; }
+        const delta = Math.random() < 0.6 ? -1 : (Math.random() < 0.5 ? -2 : 1);
+        count = Math.max(312, Math.min(860, count + delta));
+        el.innerText = count;
+      }, 3000);
+    }
+
+    // --- VSL DISCOUNT TIMER ---
+    let vslDiscountInterval = null;
+    function startVSLDiscountTimer() {
+      if (vslDiscountInterval) clearInterval(vslDiscountInterval);
+      const storageKey = 'plt_vsl_discount_end';
+      let endTime = parseInt(localStorage.getItem(storageKey) || '0');
+      if (!endTime || endTime < Date.now()) {
+        endTime = Date.now() + (10 * 60 * 1000); // 10 minutes
+        localStorage.setItem(storageKey, endTime.toString());
+      }
+
+      vslDiscountInterval = setInterval(() => {
+        const el = document.getElementById('vsl-discount-timer');
+        const bar = document.getElementById('vsl-discount-bar');
+        if (!el) { clearInterval(vslDiscountInterval); return; }
+        const remaining = Math.max(0, endTime - Date.now());
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        el.innerText = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        if (remaining <= 0) {
+          clearInterval(vslDiscountInterval);
+          if (bar) bar.innerHTML = '<p class="text-white font-black text-sm">\u26a0\ufe0f DESCONTO EXPIRADO. O valor agora \u00e9 R$ 97,00</p>';
+        }
+      }, 1000);
+    }
+
     // Initialize application
     window.addEventListener('DOMContentLoaded', () => {
       render();
+      startHeroCounter();
+      if (state.currentView === 'checkoutVideo') startVSLDiscountTimer();
     });
   </script>
 </body>
