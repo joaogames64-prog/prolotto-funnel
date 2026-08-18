@@ -233,10 +233,7 @@
         color_accent: "#ffe4e6",
         icon: "♊",
         locked: true
-      }
-    };
-
-    // --- QUIZ QUESTIONS ---
+    // --- QUIZ QUESTIONS (reduzido para 2 perguntas) ---
     const QUIZ_QUESTIONS = [
       {
         id: 1,
@@ -251,54 +248,6 @@
       },
       {
         id: 2,
-        question: "Qual foi o maior prêmio que você já ganhou na loteria?",
-        options: [
-          "Nunca ganhei nada",
-          "Menos de R$ 100",
-          "Entre R$ 100 e R$ 1.000",
-          "Entre R$ 1.000 e R$ 10.000",
-          "Mais de R$ 10.000"
-        ],
-        copy: "“A maioria joga no escuro, rasga dinheiro e os resultados não aparecem . Mas quem aprende o caminho certo, começa a ver retorno de verdade.”"
-      },
-      {
-        id: 3,
-        question: "Como você geralmente escolhe seus números para apostar?",
-        options: [
-          "Datas especiais",
-          "Números de sorte pessoais",
-          "Surpresinha (aleatório)",
-          "Baseado em estatísticas",
-          "Uso algum método ou sistema"
-        ],
-        copy: "“A forma como você escolhe seus números determina se você continua perdendo… ou se começa finalmente a jogar com vantagem em cima do sistema.”"
-      },
-      {
-        id: 4,
-        question: "Quanto você gasta por mês com apostas na loteria?",
-        options: [
-          "Não gasto nada",
-          "Até R$ 50",
-          "Entre R$ 50 e R$ 100",
-          "Entre R$ 100 e R$ 500",
-          "Mais de R$ 500"
-        ],
-        copy: "“Você pode continuar gastando sem retorno ou transformar cada aposta em uma jogada inteligente. A diferença é ter o método certo e parar de doar para o governo.”"
-      },
-      {
-        id: 5,
-        question: "Qual é o sentimento mais comum ao conferir o resultado no dia seguinte?",
-        options: [
-          "Desânimo por acertar apenas 1 ou nenhum número",
-          "Raiva por errar por muito pouco",
-          "Esperança de que ‘na próxima vai dar’",
-          "Indiferença",
-          "Alívio com prêmios pequenos (que não cobrem o gasto)"
-        ],
-        copy: "“Loteria é cálculo e probabilidade. O sentimento de 'quase' é estatística mal aplicada e é projetado para manter o apostador jogando.”"
-      },
-      {
-        id: 6,
         question: "Se você ganhasse R$ 50.000 na loteria amanhã, qual seria sua primeira ação?",
         options: [
           "💸 Pagaria todas as dívidas",
@@ -308,20 +257,7 @@
           "👫 Ajudaria a família"
         ],
         copy: "“Seus sonhos estão mais próximos do que imagina… Mas há algo que você PRECISA saber antes de continuar jogando do jeito tradicional…”"
-      },
-      {
-        id: 7,
-        question: "Você já ouviu falar de pessoas que ganharam mais de 10 vezes na loteria? Se eu te mostrar um método específico, você daria 3 minutos para conhecer esse sistema?",
-        options: [
-          "Sim, e acredito que é possível",
-          "Sim, mas acho que é sorte",
-          "Sim, mas desconfio que seja golpe",
-          "Não, como funciona?",
-          "Não acredito, mas fiquei curioso"
-        ],
-        copy: "“Ganhadores repetidos não aparecem por acaso. Existem padrões. A maioria vai ignorar isso e continuar perdendo..”"
       }
-    ];
 
     // --- APPLICATION STATE ---
     let state = {
@@ -1249,27 +1185,36 @@
           </div>
 
           <div class="max-w-md w-full relative z-10 flex flex-col items-center text-center animate-fade-in-up">
-            <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 shadow-xl backdrop-blur-sm border border-white/20">
+            <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-4 shadow-xl backdrop-blur-sm border border-white/20">
               <span class="text-4xl">🏆</span>
             </div>
 
-            <h1 class="text-3xl font-black mb-4 leading-tight">Você foi incrível!</h1>
-            <p class="text-green-100 text-lg mb-8 leading-relaxed">Você viu como a ajuda da inteligência artificial seus resultados foram bem superiores?</p>
+            <h1 class="text-3xl font-black mb-3 leading-tight">Você foi incrível!</h1>
+            <p class="text-green-100 text-base mb-5 leading-relaxed">Viu como com a ajuda da IA seus resultados foram muito superiores?</p>
 
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full border border-white/10 mb-8 shadow-2xl">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 w-full border border-white/10 mb-5 shadow-2xl">
               <p class="text-sm font-bold text-green-200 uppercase tracking-widest mb-2">Com nossa IA, você ganhou:</p>
-              <div class="text-4xl font-black text-white mb-2 text-shadow">${formattedTotal}</div>
+              <div class="text-4xl font-black text-white mb-2">${formattedTotal}</div>
               <p class="text-xs font-bold text-green-200 uppercase tracking-widest">em apenas 2 rodadas!</p>
             </div>
 
-            <p class="text-white font-medium mb-10 text-lg">Imagine jogar todos os dias com a ajuda da nossa IA?</p>
+            <!-- Urgency Card -->
+            <div class="w-full bg-yellow-400/15 border border-yellow-400/40 rounded-2xl p-4 mb-5 text-left">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="text-yellow-300 text-lg">⚡</span>
+                <span class="text-yellow-300 font-black text-sm uppercase tracking-wide">Vagas com desconto encerrando!</span>
+              </div>
+              <p class="text-yellow-100 text-xs leading-relaxed">Estamos liberando acesso com preço especial apenas para quem completou a simulação agora. Essa condição <span class="font-black text-yellow-300">não estará disponível</span> se você sair desta página.</p>
+            </div>
 
             <button
               onclick="startQuiz()"
-              class="w-full py-4 rounded-xl bg-white text-[#107048] text-base font-black uppercase tracking-widest shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-300"
+              class="w-full py-4 rounded-xl bg-white text-[#107048] text-base font-black uppercase tracking-widest shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-300 animate-pulse-btn"
+              style="animation: pulseBtnStyle 1.5s infinite ease-in-out;"
             >
-              CONTINUAR
+              QUERO MEU ACESSO ESPECIAL →
             </button>
+            <p class="text-green-200/60 text-xs mt-2">🔒 Oferta exclusiva para quem completou a simulação</p>
           </div>
         </div>
       `;
@@ -1399,6 +1344,7 @@
       if (loadingInterval) clearInterval(loadingInterval);
       if (loadingTimeout) clearTimeout(loadingTimeout);
 
+      // 50ms × 100 steps = 5 seconds total
       loadingInterval = setInterval(() => {
         if (state.loadingProgress >= 100) {
           clearInterval(loadingInterval);
@@ -1412,7 +1358,6 @@
         if (state.loadingProgress === 75) state.loadingStatusText = "Calculando probabilidade de sucesso...";
         if (state.loadingProgress === 90) state.loadingStatusText = "Gerando estratégia personalizada...";
 
-        // In-place DOM updates to prevent page re-render flickering & animation restart
         const barFill = document.getElementById('loading-bar-fill');
         const percentText = document.getElementById('loading-percent-text');
         const statusText = document.getElementById('loading-status-text');
@@ -1425,12 +1370,12 @@
           alertBox.classList.remove('hidden');
           alertBox.classList.add('block');
         }
-      }, 100);
+      }, 50);
 
       loadingTimeout = setTimeout(() => {
         clearInterval(loadingInterval);
         setView('checkoutVideo');
-      }, 10500);
+      }, 5500);
     }
 
     // 9. VIEW CHECKOUT VIDEO
@@ -1442,11 +1387,14 @@
       }
 
       const elapsedSeconds = Math.floor((Date.now() - state.vslStartTime) / 1000);
-      const TARGET_SECONDS = (6 * 60) + 47; // 407 seconds (6min 47sec)
+      const TARGET_SECONDS = 120; // 2 minutes
       const isAlreadyUnlocked = elapsedSeconds >= TARGET_SECONDS;
 
       // Schedule page timer check
       schedulePageDurationCheck(TARGET_SECONDS);
+
+      // Start social proof ticker & exit intent when entering VSL
+      setTimeout(() => initVSLExtras(), 100);
 
       return `
         <div class="min-h-screen w-full flex flex-col items-center bg-white font-sans overflow-x-hidden pb-12">
@@ -1456,6 +1404,32 @@
             <p class="text-yellow-400 font-black italic text-sm sm:text-base leading-snug tracking-wide" style="font-style: italic; text-shadow: 0 0 20px rgba(250,204,21,0.3);">
               ⚠️ Não saia e não atualize esta página. Sua análise personalizada<br class="hidden sm:block"> está sendo processada <span class="text-yellow-300">neste exato momento.</span>
             </p>
+          </div>
+
+          <!-- Social Proof Notification (injected by JS) -->
+          <div id="vsl-social-proof" class="fixed bottom-4 left-3 z-50 max-w-[280px] hidden">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl p-3 flex items-center gap-3 animate-fade-in-up">
+              <div class="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-lg">🏆</div>
+              <div class="min-w-0">
+                <p id="vsl-proof-text" class="text-xs font-bold text-slate-800 leading-tight"></p>
+                <p class="text-[10px] text-slate-400 font-medium mt-0.5">agora mesmo</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exit Intent Modal (injected by JS) -->
+          <div id="exit-intent-modal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm hidden flex items-end justify-center sm:items-center p-4">
+            <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center animate-fade-in-up">
+              <div class="text-4xl mb-3">⏳</div>
+              <h3 class="text-xl font-black text-slate-900 mb-2 leading-tight">Espera! Seu desconto vai expirar.</h3>
+              <p class="text-sm text-slate-600 mb-4 leading-relaxed">Você está a um passo de acessar o ProLotto com o preço especial de <span class="font-black text-[#2ac473]">R$ 37,00</span>. Se sair agora, esse valor não estará mais disponível.</p>
+              <button onclick="document.getElementById('exit-intent-modal').classList.add('hidden'); goToCheckout();" class="w-full py-3.5 rounded-xl bg-[#2ac473] text-white font-black text-base uppercase tracking-wide shadow-lg mb-2">
+                GARANTIR MEU DESCONTO
+              </button>
+              <button onclick="document.getElementById('exit-intent-modal').classList.add('hidden');" class="text-xs text-slate-400 underline">
+                Não, prefiro pagar mais caro depois
+              </button>
+            </div>
           </div>
 
           <div class="w-full max-w-lg mx-auto flex flex-col p-2 py-4 animate-fade-in-up">
@@ -1515,6 +1489,66 @@
           clearInterval(vslPageInterval);
         }
       }, 1000);
+    }
+
+    // --- VSL EXTRAS: Social Proof + Exit Intent ---
+    let vslSocialProofInterval = null;
+    let exitIntentAttached = false;
+
+    const VSL_SOCIAL_PROOF_MSGS = [
+      "Carlos de São Paulo acabou de acessar o ProLotto",
+      "Fernanda do Rio de Janeiro garantiu seu acesso agora",
+      "Marcos de Belo Horizonte acertou 5 números hoje",
+      "Juliana de Curitiba acabou de se cadastrar",
+      "Roberto de Fortaleza garantiu o desconto especial",
+      "Ana de Porto Alegre acertou a Lotofácil com a IA",
+      "Diego de Brasília acabou de acessar o sistema",
+      "Patrícia de Salvador garantiu seu acesso agora",
+      "Lucas de Recife acertou 4 números na Mega-Sena",
+      "Camila de Manaus entrou agora com preço especial"
+    ];
+
+    function initVSLExtras() {
+      // Social Proof Ticker
+      if (vslSocialProofInterval) clearInterval(vslSocialProofInterval);
+      let msgIndex = Math.floor(Math.random() * VSL_SOCIAL_PROOF_MSGS.length);
+
+      function showNextProof() {
+        const box = document.getElementById('vsl-social-proof');
+        const text = document.getElementById('vsl-proof-text');
+        if (!box || !text) return;
+
+        msgIndex = (msgIndex + 1) % VSL_SOCIAL_PROOF_MSGS.length;
+        text.innerText = VSL_SOCIAL_PROOF_MSGS[msgIndex];
+        box.classList.remove('hidden');
+        box.querySelector('div').classList.remove('animate-fade-in-up');
+        void box.querySelector('div').offsetWidth;
+        box.querySelector('div').classList.add('animate-fade-in-up');
+
+        setTimeout(() => { if (box) box.classList.add('hidden'); }, 4000);
+      }
+
+      // First notification after 8s, then every 18s
+      setTimeout(() => {
+        showNextProof();
+        vslSocialProofInterval = setInterval(showNextProof, 18000);
+      }, 8000);
+
+      // Exit Intent (back button / popstate)
+      if (!exitIntentAttached) {
+        exitIntentAttached = true;
+        history.pushState(null, '', window.location.href);
+        window.addEventListener('popstate', function onExitIntent() {
+          if (state.currentView !== 'checkoutVideo') {
+            window.removeEventListener('popstate', onExitIntent);
+            exitIntentAttached = false;
+            return;
+          }
+          history.pushState(null, '', window.location.href);
+          const modal = document.getElementById('exit-intent-modal');
+          if (modal) modal.classList.remove('hidden');
+        });
+      }
     }
 
     function revealCtaButton() {
