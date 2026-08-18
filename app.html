@@ -63,9 +63,19 @@ const DRAWS = [
   {id:3735,date:"15/07/2026",nums:[1,2,3,5,7,8,10,11,12,14,16,19,21,23,25]}
 ];
 
+// ========== LOTTERY CONFIGS ==========
+const LOTTERIES = {
+  megasena:   {id:'megasena',   name:'Mega-Sena',   color:'#209869', min:1, max:60, pick:6,  icon:'M'},
+  lotofacil:  {id:'lotofacil',  name:'Lotofácil',   color:'#930089', min:1, max:25, pick:15, icon:'L'},
+  quina:      {id:'quina',      name:'Quina',        color:'#260085', min:1, max:80, pick:5,  icon:'Q'},
+  lotomania:  {id:'lotomania',  name:'Lotomania',    color:'#f78100', min:0, max:99, pick:50, icon:'T'},
+  duplasena:  {id:'duplasena',  name:'Dupla-Sena',   color:'#a61324', min:1, max:50, pick:6,  icon:'D'}
+};
+
 // ========== STATE ==========
 let loggedIn = false;
 let activeTab = 'gerador';
+let selectedLottery = 'lotofacil';
 let generatedSets = [];
 let simSelected = [];
 let simResult = null;
@@ -96,18 +106,27 @@ function getPairs() {
   return Object.entries(pairs).sort((a,b)=>b[1]-a[1]).slice(0,15).map(e=>({pair:e[0],c:e[1]}));
 }
 
-// ========== AI GENERATOR ==========
-function generateAI(count) {
-  const freq = getFrequency();
-  const total = Object.values(freq).reduce((a,b)=>a+b,0);
+// ========== AI GENERATOR (generic) ==========
+function generateAI(count, lotteryId) {
+  const lot = LOTTERIES[lotteryId];
+  const range = lot.max - lot.min + 1;
+
+  // For Lotofácil use real frequency data; others use uniform + slight random weighting
   const weights = {};
-  for(let i=1;i<=25;i++) weights[i] = freq[i]/total;
+  if(lotteryId === 'lotofacil') {
+    const freq = getFrequency();
+    const total = Object.values(freq).reduce((a,b)=>a+b,0);
+    for(let i=lot.min;i<=lot.max;i++) weights[i] = (freq[i]||1)/total;
+  } else {
+    // Simulate weighted distribution for other lotteries
+    for(let i=lot.min;i<=lot.max;i++) weights[i] = 1 + Math.random()*0.5;
+  }
 
   const sets = [];
   for(let s=0;s<count;s++){
     const nums = [];
-    const pool = Array.from({length:25},(_,i)=>i+1);
-    while(nums.length<15){
+    const pool = Array.from({length:range},(_,i)=>i+lot.min);
+    while(nums.length<lot.pick){
       let wSum = pool.reduce((a,n)=>a+weights[n],0);
       let r = Math.random()*wSum, acc=0;
       for(const n of pool){
@@ -209,24 +228,43 @@ function attachTabEvents(){
 
 // ========== TAB: GERADOR ==========
 function renderGerador() {
+  const lot = LOTTERIES[selectedLottery];
+  const lotteryCards = Object.values(LOTTERIES).map(l=>{
+    const sel = selectedLottery===l.id;
+    return `<button onclick="selectedLottery='${l.id}';generatedSets=[];render();" class="flex items-center gap-2 p-2.5 rounded-xl border-2 transition-all ${sel?'border-['+l.color+'] bg-white shadow-md scale-[1.02]':'border-slate-200 bg-white hover:border-slate-300'}">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black shrink-0" style="background:${l.color}">${l.icon}</div>
+      <div class="text-left">
+        <span class="text-xs font-bold text-slate-800 block leading-tight">${l.name}</span>
+        <span class="text-[10px] text-slate-400">${l.pick} de ${l.max}</span>
+      </div>
+    </button>`;
+  }).join('');
+
+  const ballSize = lot.pick > 15 ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-sm';
+  const gridCols = lot.max > 50 ? 'grid-cols-10' : lot.max > 25 ? 'grid-cols-8' : 'grid-cols-5';
+
   const setsHtml = generatedSets.length ? generatedSets.map((set,i)=>`
     <div class="gen-card bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-black text-slate-400 uppercase">Jogo ${i+1}</span>
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded-md flex items-center justify-center text-white text-[9px] font-black" style="background:${lot.color}">${lot.icon}</div>
+          <span class="text-xs font-black text-slate-400 uppercase">${lot.name} - Jogo ${i+1}</span>
+        </div>
         <button onclick="copySet(${i})" class="text-[10px] font-bold text-[#2ac473] hover:underline">Copiar</button>
       </div>
-      <div class="flex flex-wrap gap-1.5">
-        ${set.map(n=>`<span class="w-9 h-9 rounded-lg bg-[#2ac473] text-white text-sm font-black flex items-center justify-center shadow-sm">${String(n).padStart(2,'0')}</span>`).join('')}
+      <div class="flex flex-wrap gap-1">
+        ${set.map(n=>`<span class="${ballSize} rounded-lg text-white font-black flex items-center justify-center shadow-sm" style="background:${lot.color}">${String(n).padStart(2,'0')}</span>`).join('')}
       </div>
     </div>
   `).join('') : '';
 
   return `
-    <div class="text-center mb-4">
+    <div class="text-center mb-3">
       <h2 class="text-xl font-black text-slate-800">Gerador IA</h2>
-      <p class="text-xs text-slate-500 mt-1">Combinações inteligentes baseadas em ${DRAWS.length} concursos</p>
+      <p class="text-xs text-slate-500 mt-1">Selecione a loteria e gere combinações inteligentes</p>
     </div>
-    <button onclick="doGenerate()" id="btn-gen" class="w-full py-4 rounded-xl bg-[#2ac473] text-white font-black text-base uppercase tracking-wider shadow-xl hover:bg-[#22a660] transition-all mb-4">
+    <div class="grid grid-cols-2 gap-2 mb-4">${lotteryCards}</div>
+    <button onclick="doGenerate()" id="btn-gen" class="w-full py-4 rounded-xl text-white font-black text-base uppercase tracking-wider shadow-xl hover:opacity-90 transition-all mb-4" style="background:${lot.color}">
       ⚡ GERAR 3 COMBINAÇÕES
     </button>
     <div class="space-y-3">${setsHtml}</div>
@@ -237,7 +275,7 @@ function doGenerate() {
   const btn = document.getElementById('btn-gen');
   if(btn){btn.innerHTML='<span class="spinner inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span> Analisando...';btn.disabled=true;}
   setTimeout(()=>{
-    generatedSets = generateAI(3);
+    generatedSets = generateAI(3, selectedLottery);
     render();
   }, 1500);
 }
