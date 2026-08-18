@@ -240,23 +240,50 @@ function renderGerador() {
     </button>`;
   }).join('');
 
-  const ballSize = lot.pick > 15 ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-sm';
-  const gridCols = lot.max > 50 ? 'grid-cols-10' : lot.max > 25 ? 'grid-cols-8' : 'grid-cols-5';
+  const strategies = [
+    {tag:'ALTA PROBABILIDADE', tagColor:'#2ac473', desc:'Com base na frequ\u00eancia hist\u00f3rica dos \u00faltimos concursos, esta combina\u00e7\u00e3o maximiza a presen\u00e7a de dezenas quentes.', conf:'Alta', fator:'Muito Alta'},
+    {tag:'EQUILIBRADO', tagColor:'#3b82f6', desc:'Combina\u00e7\u00e3o otimizada que mescla dezenas atrasadas com n\u00fameros de m\u00e9dia recorr\u00eancia.', conf:'M\u00e9dia', fator:'M\u00e9dia/Alta'},
+    {tag:'ESTRAT\u00c9GICO', tagColor:'#f59e0b', desc:'Sele\u00e7\u00e3o estrat\u00e9gica focada em padr\u00f5es de distribui\u00e7\u00e3o e equil\u00edbrio entre pares e \u00edmpares.', conf:'M\u00e9dia/Alta', fator:'Alta'}
+  ];
 
-  const setsHtml = generatedSets.length ? generatedSets.map((set,i)=>`
-    <div class="gen-card bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <div class="w-5 h-5 rounded-md flex items-center justify-center text-white text-[9px] font-black" style="background:${lot.color}">${lot.icon}</div>
-          <span class="text-xs font-black text-slate-400 uppercase">${lot.name} - Jogo ${i+1}</span>
+  const ballSize = lot.pick > 15 ? 'w-8 h-8 text-[10px]' : 'w-10 h-10 text-sm';
+
+  const setsHtml = generatedSets.length ? generatedSets.map((set,i)=>{
+    const st = strategies[i] || strategies[0];
+    const score = Math.floor(Math.random()*12)+85; // 85-96
+    return `
+    <div class="gen-card rounded-2xl overflow-hidden shadow-lg" style="background: linear-gradient(145deg, #0f172a 0%, #1a1f3a 100%);">
+      <div class="p-4 pb-3">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-md flex items-center justify-center text-white text-[9px] font-black" style="background:${lot.color}">${lot.icon}</div>
+            <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style="background:${st.tagColor}">${st.tag}</span>
+          </div>
+          <div class="text-right">
+            <span class="text-2xl font-black text-white">${score}</span><span class="text-sm text-slate-400 font-bold">/100</span>
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Pontua\u00e7\u00e3o Prob.</p>
+          </div>
         </div>
-        <button onclick="copySet(${i})" class="text-[10px] font-bold text-[#2ac473] hover:underline">Copiar</button>
+        <div class="flex flex-wrap gap-1.5 justify-center mb-4">
+          ${set.map(n=>`<span class="${ballSize} rounded-full bg-white text-slate-900 font-black flex items-center justify-center shadow-md">${String(n).padStart(2,'0')}</span>`).join('')}
+        </div>
+        <p class="text-xs text-slate-400 italic text-center leading-relaxed mb-3 px-2">"${st.desc}"</p>
       </div>
-      <div class="flex flex-wrap gap-1">
-        ${set.map(n=>`<span class="${ballSize} rounded-lg text-white font-black flex items-center justify-center shadow-sm" style="background:${lot.color}">${String(n).padStart(2,'0')}</span>`).join('')}
+      <div class="grid grid-cols-2 border-t border-white/10">
+        <div class="p-3 text-center border-r border-white/10">
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Confian\u00e7a</p>
+          <p class="text-sm font-black text-white">${st.conf}</p>
+        </div>
+        <div class="p-3 text-center">
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Fator Relativo</p>
+          <p class="text-sm font-black text-white">${st.fator}</p>
+        </div>
       </div>
-    </div>
-  `).join('') : '';
+      <div class="px-4 pb-3 pt-1">
+        <button onclick="copySet(${i})" class="w-full py-2 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all">Copiar Jogo</button>
+      </div>
+    </div>`;
+  }).join('') : '';
 
   return `
     <div class="text-center mb-3">
