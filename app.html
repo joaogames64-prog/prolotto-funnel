@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProLotto AI — Painel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/png" href="./logo-prolotto.png" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .fade-in { animation: fadeIn .4s ease-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .spinner { animation: spin .8s linear infinite; }
+    .ball { transition: all .15s ease; }
+    .ball:hover { transform: scale(1.1); }
+    .ball-selected { background: #2ac473 !important; color: #fff !important; box-shadow: 0 0 12px #2ac47350; transform: scale(1.08); }
+    .tab-active { background: #2ac473; color: #fff; }
+    .gen-card { animation: fadeIn .5s ease-out both; }
+    .gen-card:nth-child(2){animation-delay:.15s}
+    .gen-card:nth-child(3){animation-delay:.3s}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+    .heat-1{background:#fee2e2;color:#991b1b}.heat-2{background:#fef3c7;color:#92400e}.heat-3{background:#d1fae5;color:#065f46}
+  </style>
+</head>
+<body class="bg-[#f0f4f8] min-h-screen">
+
+<div id="app"></div>
+
+<script>
+// ========== DATA ==========
+const DRAWS = [
+  {id:3764,date:"17/08/2026",nums:[2,3,4,5,6,7,8,9,12,13,15,18,21,22,25]},
+  {id:3763,date:"16/08/2026",nums:[1,2,3,4,5,8,9,14,15,17,20,21,22,23,24]},
+  {id:3762,date:"14/08/2026",nums:[1,2,3,4,5,6,9,10,13,16,18,21,22,23,25]},
+  {id:3761,date:"13/08/2026",nums:[1,3,6,9,12,13,14,15,16,17,18,21,23,24,25]},
+  {id:3760,date:"12/08/2026",nums:[2,4,5,8,9,10,11,13,14,16,19,21,22,24,25]},
+  {id:3759,date:"11/08/2026",nums:[1,2,4,5,6,7,9,10,11,12,13,14,17,24,25]},
+  {id:3758,date:"10/08/2026",nums:[1,3,4,5,8,9,11,12,13,14,17,18,20,24,25]},
+  {id:3757,date:"09/08/2026",nums:[1,2,3,4,6,8,11,12,15,17,20,21,22,23,24]},
+  {id:3756,date:"07/08/2026",nums:[2,3,5,6,9,10,11,13,14,15,16,19,20,21,22]},
+  {id:3755,date:"06/08/2026",nums:[3,4,5,7,8,9,11,12,16,18,20,22,23,24,25]},
+  {id:3754,date:"05/08/2026",nums:[1,3,4,5,7,8,11,12,13,14,16,20,21,23,25]},
+  {id:3753,date:"04/08/2026",nums:[1,2,4,6,8,9,14,15,16,17,19,21,22,24,25]},
+  {id:3752,date:"03/08/2026",nums:[2,3,6,7,9,10,11,12,13,14,15,16,17,21,24]},
+  {id:3751,date:"02/08/2026",nums:[1,2,4,7,8,9,11,12,16,17,18,19,21,23,24]},
+  {id:3750,date:"31/07/2026",nums:[1,2,5,6,7,11,12,13,15,18,19,20,22,24,25]},
+  {id:3749,date:"30/07/2026",nums:[1,2,3,7,8,9,11,12,14,17,19,21,23,24,25]},
+  {id:3748,date:"29/07/2026",nums:[1,4,5,6,8,9,11,13,14,15,17,19,20,22,25]},
+  {id:3747,date:"28/07/2026",nums:[1,2,4,5,6,8,9,11,12,13,18,19,21,24,25]},
+  {id:3746,date:"27/07/2026",nums:[1,3,4,6,7,8,9,10,14,15,17,18,21,22,24]},
+  {id:3745,date:"26/07/2026",nums:[1,2,3,4,5,6,7,9,10,11,14,15,18,22,24]},
+  {id:3744,date:"25/07/2026",nums:[2,3,4,5,6,9,10,11,13,15,16,17,18,23,25]},
+  {id:3743,date:"24/07/2026",nums:[1,2,4,5,8,9,10,11,12,13,14,19,20,23,24]},
+  {id:3742,date:"23/07/2026",nums:[1,2,3,6,7,8,10,12,13,14,15,16,19,20,24]},
+  {id:3741,date:"22/07/2026",nums:[1,3,4,6,7,8,9,11,12,13,15,16,17,21,22]},
+  {id:3740,date:"21/07/2026",nums:[1,2,3,4,5,7,8,9,10,14,17,18,21,22,25]},
+  {id:3739,date:"20/07/2026",nums:[1,2,5,6,9,10,12,14,16,17,18,19,20,23,24]},
+  {id:3738,date:"18/07/2026",nums:[2,3,4,7,8,10,11,12,13,15,18,20,21,24,25]},
+  {id:3737,date:"17/07/2026",nums:[1,3,5,6,7,8,9,10,11,13,15,16,17,21,22]},
+  {id:3736,date:"16/07/2026",nums:[1,2,4,6,9,11,12,13,14,15,17,18,19,22,24]},
+  {id:3735,date:"15/07/2026",nums:[1,2,3,5,7,8,10,11,12,14,16,19,21,23,25]}
+];
+
+// ========== STATE ==========
+let loggedIn = false;
+let activeTab = 'gerador';
+let generatedSets = [];
+let simSelected = [];
+let simResult = null;
+
+// ========== STATS HELPERS ==========
+function getFrequency() {
+  const freq = {};
+  for (let i = 1; i <= 25; i++) freq[i] = 0;
+  DRAWS.forEach(d => d.nums.forEach(n => freq[n]++));
+  return freq;
+}
+
+function getHotCold() {
+  const freq = getFrequency();
+  const sorted = Object.entries(freq).sort((a,b) => b[1] - a[1]);
+  return { hot: sorted.slice(0,8).map(e=>({n:+e[0],c:e[1]})), cold: sorted.slice(-8).reverse().map(e=>({n:+e[0],c:e[1]})) };
+}
+
+function getPairs() {
+  const pairs = {};
+  DRAWS.forEach(d => {
+    for(let i=0;i<d.nums.length;i++)
+      for(let j=i+1;j<d.nums.length;j++){
+        const k=d.nums[i]+'-'+d.nums[j];
+        pairs[k]=(pairs[k]||0)+1;
+      }
+  });
+  return Object.entries(pairs).sort((a,b)=>b[1]-a[1]).slice(0,15).map(e=>({pair:e[0],c:e[1]}));
+}
+
+// ========== AI GENERATOR ==========
+function generateAI(count) {
+  const freq = getFrequency();
+  const total = Object.values(freq).reduce((a,b)=>a+b,0);
+  const weights = {};
+  for(let i=1;i<=25;i++) weights[i] = freq[i]/total;
+
+  const sets = [];
+  for(let s=0;s<count;s++){
+    const nums = [];
+    const pool = Array.from({length:25},(_,i)=>i+1);
+    while(nums.length<15){
+      let wSum = pool.reduce((a,n)=>a+weights[n],0);
+      let r = Math.random()*wSum, acc=0;
+      for(const n of pool){
+        acc+=weights[n];
+        if(r<=acc){nums.push(n);pool.splice(pool.indexOf(n),1);break;}
+      }
+    }
+    sets.push(nums.sort((a,b)=>a-b));
+  }
+  return sets;
+}
+
+// ========== RENDER ==========
+function render() {
+  document.getElementById('app').innerHTML = loggedIn ? renderApp() : renderLogin();
+  if(loggedIn) attachTabEvents();
+}
+
+function renderLogin() {
+  return `
+  <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0a1628] to-[#0d2847]">
+    <div class="w-full max-w-sm fade-in">
+      <div class="text-center mb-8">
+        <img src="./logo-prolotto.png" alt="Logo" class="w-16 h-16 mx-auto mb-3 rounded-full border-2 border-[#2ac473]" />
+        <h1 class="text-2xl font-black text-white">PRO<span class="text-[#2ac473]">LOTTO</span> AI</h1>
+        <p class="text-slate-400 text-sm mt-1">Acesse seu painel exclusivo</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">USUÁRIO</label>
+            <input id="login-user" type="text" placeholder="Seu usuário" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-white text-sm focus:border-[#2ac473] focus:ring-1 focus:ring-[#2ac473] outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">SENHA</label>
+            <input id="login-pass" type="password" placeholder="Sua senha" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-white text-sm focus:border-[#2ac473] focus:ring-1 focus:ring-[#2ac473] outline-none" onkeydown="if(event.key==='Enter')doLogin()" />
+          </div>
+          <p id="login-error" class="text-red-400 text-xs font-bold hidden">Usuário ou senha incorretos.</p>
+          <button onclick="doLogin()" class="w-full py-3.5 rounded-xl bg-[#2ac473] text-white font-black text-sm uppercase tracking-wider shadow-lg hover:bg-[#22a660] transition-all">
+            ENTRAR
+          </button>
+        </div>
+      </div>
+      <p class="text-center text-slate-500 text-[10px] mt-6">© 2026 ProLotto. Todos os direitos reservados.</p>
+    </div>
+  </div>`;
+}
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value.trim();
+  if(u===p && u.startsWith('usuario') && u.length>7) {
+    loggedIn=true; render();
+  } else {
+    document.getElementById('login-error').classList.remove('hidden');
+  }
+}
+
+function renderApp() {
+  const tabs = [
+    {id:'gerador',icon:'⚡',label:'Gerador IA'},
+    {id:'analise',icon:'📊',label:'Análise'},
+    {id:'historico',icon:'📋',label:'Histórico'},
+    {id:'simulador',icon:'🎯',label:'Simulador'}
+  ];
+  const tabBar = tabs.map(t=>`
+    <button data-tab="${t.id}" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab===t.id?'tab-active shadow-md':'text-slate-500 hover:bg-slate-100'}">
+      <span class="block text-base mb-0.5">${t.icon}</span>${t.label}
+    </button>
+  `).join('');
+
+  let content='';
+  if(activeTab==='gerador') content=renderGerador();
+  else if(activeTab==='analise') content=renderAnalise();
+  else if(activeTab==='historico') content=renderHistorico();
+  else if(activeTab==='simulador') content=renderSimulador();
+
+  return `
+  <div class="min-h-screen bg-[#f0f4f8] flex flex-col">
+    <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-2">
+        <img src="./logo-prolotto.png" alt="Logo" class="w-8 h-8 rounded-full border-2 border-[#2ac473]" />
+        <span class="font-black text-lg text-slate-800">PRO<span class="text-[#2ac473]">LOTTO</span></span>
+      </div>
+      <button onclick="loggedIn=false;render();" class="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">Sair</button>
+    </header>
+    <div class="flex-grow w-full max-w-lg mx-auto px-3 py-4 pb-24 fade-in">${content}</div>
+    <nav class="fixed bottom-0 w-full bg-white border-t border-slate-200 px-3 py-2 flex gap-1 shadow-lg z-50">
+      ${tabBar}
+    </nav>
+  </div>`;
+}
+
+function attachTabEvents(){
+  document.querySelectorAll('[data-tab]').forEach(btn=>{
+    btn.onclick=()=>{activeTab=btn.dataset.tab;render();};
+  });
+}
+
+// ========== TAB: GERADOR ==========
+function renderGerador() {
+  const setsHtml = generatedSets.length ? generatedSets.map((set,i)=>`
+    <div class="gen-card bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-black text-slate-400 uppercase">Jogo ${i+1}</span>
+        <button onclick="copySet(${i})" class="text-[10px] font-bold text-[#2ac473] hover:underline">Copiar</button>
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        ${set.map(n=>`<span class="w-9 h-9 rounded-lg bg-[#2ac473] text-white text-sm font-black flex items-center justify-center shadow-sm">${String(n).padStart(2,'0')}</span>`).join('')}
+      </div>
+    </div>
+  `).join('') : '';
+
+  return `
+    <div class="text-center mb-4">
+      <h2 class="text-xl font-black text-slate-800">Gerador IA</h2>
+      <p class="text-xs text-slate-500 mt-1">Combinações inteligentes baseadas em ${DRAWS.length} concursos</p>
+    </div>
+    <button onclick="doGenerate()" id="btn-gen" class="w-full py-4 rounded-xl bg-[#2ac473] text-white font-black text-base uppercase tracking-wider shadow-xl hover:bg-[#22a660] transition-all mb-4">
+      ⚡ GERAR 3 COMBINAÇÕES
+    </button>
+    <div class="space-y-3">${setsHtml}</div>
+  `;
+}
+
+function doGenerate() {
+  const btn = document.getElementById('btn-gen');
+  if(btn){btn.innerHTML='<span class="spinner inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span> Analisando...';btn.disabled=true;}
+  setTimeout(()=>{
+    generatedSets = generateAI(3);
+    render();
+  }, 1500);
+}
+
+function copySet(i) {
+  const text = generatedSets[i].map(n=>String(n).padStart(2,'0')).join(' - ');
+  navigator.clipboard.writeText(text).then(()=>alert('Jogo copiado!')).catch(()=>{});
+}
+
+// ========== TAB: ANÁLISE ==========
+function renderAnalise() {
+  const freq = getFrequency();
+  const {hot,cold} = getHotCold();
+  const maxFreq = Math.max(...Object.values(freq));
+  const topPairs = getPairs();
+
+  const freqBars = Array.from({length:25},(_,i)=>i+1).map(n=>{
+    const pct = Math.round((freq[n]/maxFreq)*100);
+    const cls = pct>75?'heat-3':pct>45?'heat-2':'heat-1';
+    return `
+    <div class="flex items-center gap-2">
+      <span class="w-7 text-right text-xs font-bold text-slate-600">${String(n).padStart(2,'0')}</span>
+      <div class="flex-1 bg-slate-100 rounded-full h-5 relative overflow-hidden">
+        <div class="h-full rounded-full ${cls} flex items-center justify-end pr-2 text-[10px] font-black" style="width:${pct}%">${freq[n]}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <h2 class="text-xl font-black text-slate-800 mb-1">Análise Estatística</h2>
+    <p class="text-xs text-slate-500 mb-4">Baseada nos últimos ${DRAWS.length} concursos da Lotofácil</p>
+
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-black text-green-600 uppercase mb-2">🔥 Mais Quentes</p>
+        <div class="flex flex-wrap gap-1">${hot.map(h=>`<span class="w-8 h-8 rounded-lg bg-green-100 text-green-700 text-xs font-black flex items-center justify-center">${String(h.n).padStart(2,'0')}</span>`).join('')}</div>
+      </div>
+      <div class="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-black text-blue-600 uppercase mb-2">❄️ Mais Frias</p>
+        <div class="flex flex-wrap gap-1">${cold.map(c=>`<span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 text-xs font-black flex items-center justify-center">${String(c.n).padStart(2,'0')}</span>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm mb-4">
+      <p class="text-xs font-black text-slate-700 mb-3">Frequência por Número</p>
+      <div class="space-y-1.5">${freqBars}</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+      <p class="text-xs font-black text-slate-700 mb-3">Top 15 Pares Mais Frequentes</p>
+      <div class="grid grid-cols-3 gap-2">
+        ${topPairs.map((p,i)=>`<div class="flex items-center gap-1.5 bg-slate-50 rounded-lg px-2 py-1.5">
+          <span class="text-[10px] font-black text-slate-400">#${i+1}</span>
+          <span class="text-xs font-bold text-slate-700">${p.pair}</span>
+          <span class="text-[10px] text-[#2ac473] font-black ml-auto">${p.c}x</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ========== TAB: HISTÓRICO ==========
+function renderHistorico() {
+  const rows = DRAWS.map(d=>`
+    <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-black text-[#005da8]">Concurso ${d.id}</span>
+        <span class="text-[10px] text-slate-400 font-bold">${d.date}</span>
+      </div>
+      <div class="flex flex-wrap gap-1">
+        ${d.nums.map(n=>`<span class="w-7 h-7 rounded-md bg-[#005da8] text-white text-[11px] font-bold flex items-center justify-center">${String(n).padStart(2,'0')}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <h2 class="text-xl font-black text-slate-800 mb-1">Histórico de Resultados</h2>
+    <p class="text-xs text-slate-500 mb-4">Últimos ${DRAWS.length} concursos da Lotofácil</p>
+    <div class="space-y-2">${rows}</div>
+  `;
+}
+
+// ========== TAB: SIMULADOR ==========
+function renderSimulador() {
+  const grid = Array.from({length:25},(_,i)=>i+1).map(n=>{
+    const sel = simSelected.includes(n);
+    let extra='';
+    if(simResult){
+      const lastDraw = DRAWS[0].nums;
+      if(sel && lastDraw.includes(n)) extra='ring-2 ring-green-400 bg-green-500 text-white';
+      else if(sel && !lastDraw.includes(n)) extra='ring-2 ring-red-400 bg-red-100 text-red-500';
+      else if(!sel && lastDraw.includes(n)) extra='bg-[#005da8] text-white opacity-60';
+    }
+    return `<button onclick="toggleSim(${n})" class="ball w-11 h-11 rounded-xl text-sm font-bold flex items-center justify-center border ${sel && !simResult?'ball-selected':'bg-white text-slate-700 border-slate-200 hover:border-[#2ac473]'} ${extra}">
+      ${String(n).padStart(2,'0')}
+    </button>`;
+  }).join('');
+
+  let resultHtml='';
+  if(simResult){
+    const lastDraw = DRAWS[0].nums;
+    const hits = simSelected.filter(n=>lastDraw.includes(n)).length;
+    const prizes = {15:'R$ 1.500.000+',14:'R$ 800+',13:'R$ 30,00',12:'R$ 12,00',11:'R$ 6,00'};
+    const prize = prizes[hits]||'Nenhum prêmio';
+    const color = hits>=13?'text-green-500':hits>=11?'text-yellow-500':'text-red-500';
+    resultHtml=`
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center fade-in">
+        <p class="text-xs text-slate-500 mb-1">Concurso ${DRAWS[0].id} (${DRAWS[0].date})</p>
+        <p class="text-3xl font-black ${color}">${hits} acertos</p>
+        <p class="text-sm font-bold text-slate-600 mt-1">${prize}</p>
+        <button onclick="simSelected=[];simResult=null;render();" class="mt-3 text-xs font-bold text-[#2ac473] hover:underline">Jogar novamente</button>
+      </div>`;
+  }
+
+  return `
+    <h2 class="text-xl font-black text-slate-800 mb-1">Simulador de Aposta</h2>
+    <p class="text-xs text-slate-500 mb-1">Escolha 15 números e confira contra o último concurso</p>
+    <p class="text-xs font-bold text-[#2ac473] mb-3">${simSelected.length}/15 selecionados</p>
+    <div class="grid grid-cols-5 gap-2 mb-4">${grid}</div>
+    ${!simResult && simSelected.length===15?`
+      <button onclick="simResult=true;render();" class="w-full py-3.5 rounded-xl bg-[#005da8] text-white font-black text-sm uppercase tracking-wider shadow-lg">
+        CONFERIR RESULTADO
+      </button>`:''}
+    ${resultHtml}
+  `;
+}
+
+function toggleSim(n){
+  if(simResult) return;
+  const i=simSelected.indexOf(n);
+  if(i>-1) simSelected.splice(i,1);
+  else if(simSelected.length<15) simSelected.push(n);
+  render();
+}
+
+// ========== INIT ==========
+render();
+</script>
+</body>
+</html>
