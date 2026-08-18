@@ -186,44 +186,46 @@
         </div>
 
         <!-- Order Bumps (Up-Sells) -->
-        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="text-lg">🔥</span>
-            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">Aproveite e Leve Também (Oportunidade Única):</h3>
+        <div class="bg-gradient-to-b from-amber-50 to-white rounded-2xl p-5 sm:p-6 shadow-sm border-2 border-amber-300">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-lg">🎁</span>
+            <h3 class="text-sm font-black text-slate-900 uppercase tracking-wide">Ofertas Exclusivas Desta Página</h3>
           </div>
+          <p class="text-[11px] text-red-500 font-bold mb-4">⚠️ Disponível APENAS agora. Não será oferecido novamente.</p>
 
           <div class="space-y-3">
-            <!-- Order Bump 1: WhatsApp -->
-            <label class="block p-3.5 sm:p-4 rounded-2xl border-2 border-[#2ac473]/40 bg-emerald-50/30 hover:bg-emerald-50/60 cursor-pointer transition-all">
+            <!-- Order Bump 1: WhatsApp (PRE-CHECKED) -->
+            <label class="block p-3.5 sm:p-4 rounded-2xl border-2 border-[#2ac473] bg-[#2ac473]/5 cursor-pointer transition-all relative overflow-hidden" id="bump-1-label">
+              <div class="absolute top-0 right-0 bg-[#2ac473] text-white text-[9px] font-black px-3 py-0.5 rounded-bl-lg uppercase">Mais Popular</div>
               <div class="flex items-start gap-3">
                 <input
                   type="checkbox"
                   id="bump-1"
+                  checked
                   onchange="updateTotal()"
                   class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0"
                 />
                 <div class="flex-grow min-w-0">
-                  <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <div class="flex items-center gap-2 min-w-0">
                       <img src="https://i.imgur.com/jmtbos4.png" alt="Icon" class="w-7 h-7 rounded-lg object-cover border border-emerald-200 flex-shrink-0" />
-                      <span class="font-bold text-sm text-slate-900 truncate">ProLotto — Números direto no WhatsApp</span>
+                      <span class="font-bold text-sm text-slate-900 truncate">ProLotto no WhatsApp</span>
                     </div>
                     <div class="bg-[#2ac473] text-white px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-sm flex-shrink-0">
                       <span class="line-through opacity-80 text-[10px]">R$ 47,00</span>
                       <span>R$ 7,00</span>
                     </div>
                   </div>
-                  <span class="inline-flex items-center gap-1 bg-[#2ac473]/10 border border-[#2ac473]/40 text-[#2ac473] text-[11px] font-black px-2.5 py-0.5 rounded-full mb-2">✚ ADICIONAR POR APENAS R$ 7,00</span>
-                  <p class="text-xs text-slate-500 leading-relaxed">
-                    Receba suas análises e jogos diretamente pelo WhatsApp, sem precisar ficar entrando no aplicativo para consultar.<br><br>
-                    Mais praticidade para acompanhar seus jogos todos os dias.
+                  <p class="text-xs text-slate-700 leading-relaxed font-medium">
+                    <span class="text-red-500 font-black">Sem isso:</span> você vai precisar abrir o app todo dia pra ver seus jogos.<br>
+                    <span class="text-[#2ac473] font-black">Com isso:</span> recebe tudo pronto no WhatsApp, sem esforço. <span class="font-black">85% dos usuários adicionam.</span>
                   </p>
                 </div>
               </div>
             </label>
 
             <!-- Order Bump 2: Pacote Gerador PRO -->
-            <label class="block p-3.5 sm:p-4 rounded-2xl border-2 border-[#2ac473]/40 bg-emerald-50/30 hover:bg-emerald-50/60 cursor-pointer transition-all">
+            <label class="block p-3.5 sm:p-4 rounded-2xl border-2 border-amber-400/60 bg-amber-50/50 hover:bg-amber-50 cursor-pointer transition-all" id="bump-2-label">
               <div class="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -232,27 +234,26 @@
                   class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0"
                 />
                 <div class="flex-grow min-w-0">
-                  <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <div class="flex items-center gap-2 min-w-0">
                       <img src="https://i.imgur.com/sKQa3yK.png" alt="Icon" class="w-7 h-7 rounded-lg object-cover border border-emerald-200 flex-shrink-0" />
-                      <span class="font-bold text-sm text-slate-900 truncate">2. ProLotto — Pacote Gerador PRO</span>
+                      <span class="font-bold text-sm text-slate-900 truncate">Pacote Gerador PRO</span>
                     </div>
-                    <div class="bg-[#2ac473] text-white px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-sm flex-shrink-0">
+                    <div class="bg-amber-500 text-white px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-sm flex-shrink-0">
                       <span class="line-through opacity-80 text-[10px]">R$ 67,00</span>
                       <span>R$ 14,00</span>
                     </div>
                   </div>
-                  <span class="inline-flex items-center gap-1 bg-[#2ac473]/10 border border-[#2ac473]/40 text-[#2ac473] text-[11px] font-black px-2.5 py-0.5 rounded-full mb-2">✚ ADICIONAR POR APENAS R$ 14,00</span>
-                  <p class="text-xs text-slate-500 leading-relaxed">
-                    Gere até 10 combinações de jogos de uma só vez!<br><br>
-                    Desbloqueie o modo PRO e tenha acesso a mais possibilidades de geração, com até 10 combinações por vez, além de recursos e filtros adicionais para personalizar suas análises.
+                  <p class="text-xs text-slate-700 leading-relaxed font-medium">
+                    <span class="text-red-500 font-black">Sem isso:</span> você só gera 1 combinação por vez e perde tempo.<br>
+                    <span class="text-[#2ac473] font-black">Com isso:</span> gera 10 combinações de uma vez + filtros avançados. Quem joga sério não fica sem.
                   </p>
                 </div>
               </div>
             </label>
 
             <!-- Order Bump 3: Estratégias de Bolão -->
-            <label class="block p-3.5 sm:p-4 rounded-2xl border-2 border-[#2ac473]/40 bg-emerald-50/30 hover:bg-emerald-50/60 cursor-pointer transition-all">
+            <label class="block p-3.5 sm:p-4 rounded-2xl border-2 border-amber-400/60 bg-amber-50/50 hover:bg-amber-50 cursor-pointer transition-all" id="bump-3-label">
               <div class="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -261,20 +262,19 @@
                   class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0"
                 />
                 <div class="flex-grow min-w-0">
-                  <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <div class="flex items-center gap-2 min-w-0">
                       <img src="https://i.imgur.com/sKQa3yK.png" alt="Icon" class="w-7 h-7 rounded-lg object-cover border border-emerald-200 flex-shrink-0" />
-                      <span class="font-bold text-sm text-slate-900 truncate">ProLotto — Estratégias de Bolão</span>
+                      <span class="font-bold text-sm text-slate-900 truncate">Estratégias de Bolão</span>
                     </div>
-                    <div class="bg-[#2ac473] text-white px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-sm flex-shrink-0">
+                    <div class="bg-amber-500 text-white px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-sm flex-shrink-0">
                       <span class="line-through opacity-80 text-[10px]">R$ 67,00</span>
                       <span>R$ 14,00</span>
                     </div>
                   </div>
-                  <span class="inline-flex items-center gap-1 bg-[#2ac473]/10 border border-[#2ac473]/40 text-[#2ac473] text-[11px] font-black px-2.5 py-0.5 rounded-full mb-2">✚ ADICIONAR POR APENAS R$ 14,00</span>
-                  <p class="text-xs text-slate-500 leading-relaxed">
-                    Aprenda a organizar combinações para bolões usando diferentes estratégias de distribuição e análise dos números.<br><br>
-                    Uma ferramenta extra para quem gosta de jogar em grupo e montar mais combinações.
+                  <p class="text-xs text-slate-700 leading-relaxed font-medium">
+                    <span class="text-red-500 font-black">Sem isso:</span> você joga sozinho e gasta mais por aposta.<br>
+                    <span class="text-[#2ac473] font-black">Com isso:</span> monta bolões inteligentes, divide o custo e multiplica suas chances.
                   </p>
                 </div>
               </div>
@@ -591,6 +591,9 @@
       summaryList.innerHTML = itemsHtml;
       document.getElementById('total-price-display').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
     }
+
+    // Initialize total on page load (bump-1 is pre-checked)
+    setTimeout(() => updateTotal(), 0);
 
     // Main PIX Generation Function (called directly by button onclick)
     async function gerarPix() {
