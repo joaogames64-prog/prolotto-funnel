@@ -268,16 +268,14 @@
       currentView: getInitialView(),
       selectedLottery: "megasena",
       isTermsOpen: false,
-      
-      // Simulator Normal
-      simRound: 1,
+
+      // Simulator Normal (single round)
       simSelected: [],
-      simResultState: 'playing', // 'playing' | 'result'
+      simResultState: 'playing',
       simHits: 0,
       simDraw: [],
 
-      // Simulator AI
-      aiRound: 1,
+      // Simulator AI (single round)
       aiSelected: [],
       aiResultState: 'playing',
       aiHits: 0,
@@ -289,6 +287,7 @@
       // Quiz
       quizStep: 0,
       quizAnimating: false,
+      quizAnswers: JSON.parse(localStorage.getItem('plt_quiz_answers') || 'null') || {},
 
       // Loading
       loadingProgress: 0,
@@ -301,7 +300,7 @@
     function getInitialView() {
       const urlParams = new URLSearchParams(window.location.search);
       const viewParam = urlParams.get('view');
-      const validViews = ["hero", "selection", "simulator", "upsell", "simulatorAI", "resultsSummary", "quiz", "loading", "checkoutVideo"];
+      const validViews = ["hero", "quiz", "loading", "selection", "simulator", "upsell", "simulatorAI", "resultsSummary", "checkoutVideo"];
       return validViews.includes(viewParam) ? viewParam : "hero";
     }
 
@@ -402,21 +401,21 @@
               <ul class="space-y-2">
                 <li class="flex items-start gap-3">
                   <span class="text-base w-5 text-center">🔴</span>
-                  <span class="text-slate-700 font-medium text-sm leading-tight mt-0.5">2 rodadas sem inteligência artificial</span>
+                  <span class="text-slate-700 font-medium text-sm leading-tight mt-0.5">1 rodada sem inteligência artificial</span>
                 </li>
                 <li class="flex items-start gap-3">
                   <span class="text-base w-5 text-center">🟢</span>
-                  <span class="text-slate-700 font-medium text-sm leading-tight mt-0.5">2 rodadas com os números da ProLotto</span>
+                  <span class="text-slate-700 font-medium text-sm leading-tight mt-0.5">1 rodada com os números da ProLotto</span>
                 </li>
                 <li class="flex items-start gap-3">
                   <span class="text-base w-5 text-center">💰</span>
-                  <span class="text-slate-700 font-medium text-sm leading-tight mt-0.5">Verifique seus acertos a cada rodada</span>
+                  <span class="text-slate-700 font-medium text-sm leading-tight mt-0.5">Veja a diferença na prática</span>
                 </li>
               </ul>
             </div>
 
             <div class="w-full px-2 pt-2">
-              <button onclick="setView('selection')" class="w-full group relative">
+              <button onclick="startQuiz()" class="w-full group relative">
                 <div class="absolute top-0 left-0 w-full h-full bg-[#14532d] rounded-xl transform translate-y-1.5"></div>
                 <div class="relative bg-[#16a34a] hover:bg-[#15803d] text-white p-3.5 rounded-xl font-extrabold text-xl uppercase tracking-widest transition-transform duration-100 active:translate-y-1.5 border-t border-green-300 shadow-md">
                   COMEÇAR
@@ -651,7 +650,6 @@
     }
 
     function startSimulator() {
-      state.simRound = 1;
       state.simSelected = [];
       state.simResultState = 'playing';
       state.simHits = 0;
@@ -753,7 +751,7 @@
               <span class="text-[#005da8]">PROLOTTO</span> <span style="color: ${lottery.color_primary}">${lottery.name}</span>
             </h1>
             <p class="text-xs font-bold text-slate-600 tracking-wide mb-1">Tente acertar os números com sua intuição</p>
-            <p class="text-[10px] text-slate-400 font-bold">Rodada ${state.simRound} de 2</p>
+            <p class="text-[10px] text-slate-400 font-bold">Rodada 1 de 1 (Sem IA)</p>
           </div>
 
           <!-- Numbers Grid -->
@@ -791,7 +789,7 @@
                     onclick="nextSimRound()"
                     class="w-full py-4 rounded-xl bg-[#005da8] text-white text-base font-black uppercase tracking-widest shadow-lg hover:bg-[#004a87] transition-all active:scale-95"
                   >
-                    ${state.simRound === 1 ? 'TENTAR DE NOVO' : 'VER COMO RESOLVER ISSO'}
+                    VER COMO RESOLVER ISSO
                   </button>
                 </div>
               `}
@@ -850,16 +848,7 @@
     }
 
     function nextSimRound() {
-      if (state.simRound === 1) {
-        state.simRound = 2;
-        state.simSelected = [];
-        state.simResultState = 'playing';
-        state.simHits = 0;
-        state.simDraw = [];
-        render();
-      } else {
-        setView('upsell');
-      }
+      setView('upsell');
     }
 
     // 4. VIEW UPSELL
@@ -941,7 +930,7 @@
             </div>
 
             <div class="mx-4 mb-6 p-4 bg-green-50 rounded-xl text-center border border-green-100">
-              <p class="text-[#105c38] font-bold text-sm leading-snug">Com a ProLotto, +12 mil pessoas já estão faturando mais de R$3.000 todas as semanas!</p>
+              <p class="text-[#105c38] font-bold text-sm leading-snug">Como seu foco é <strong>${state.quizAnswers.q1 || 'seu objetivo'}</strong>, preparamos uma simulação com critérios diferentes dos usados na sua rodada inicial. Mais de 12 mil pessoas com o mesmo perfil já estão usando isso toda semana.</p>
             </div>
 
             <div class="px-4 pb-8">
@@ -1097,7 +1086,7 @@
                     onclick="nextAIRound()"
                     class="w-full py-4 rounded-xl bg-[#005da8] text-white text-base font-black uppercase tracking-widest shadow-lg hover:bg-[#004a87] transition-all active:scale-95"
                   >
-                    ${state.aiRound === 1 ? 'PRÓXIMA RODADA' : 'CONTINUAR'}
+                    CONTINUAR
                   </button>
                 </div>
               `}
@@ -1135,24 +1124,14 @@
       let prizeAmount = 0;
 
       if (lottery.id === 'megasena' || lottery.id === 'duplasena') {
-        if (state.aiRound === 1) {
-          hitsCount = 4;
-          prizeAmount = Math.floor(Math.random() * 701) + 500;
-        } else {
-          hitsCount = 5;
-          prizeAmount = Math.floor(Math.random() * 90001) + 30000;
-        }
+        hitsCount = 4;
+        prizeAmount = Math.floor(Math.random() * 701) + 500;
       } else if (lottery.id === 'lotofacil') {
         hitsCount = 14;
         prizeAmount = Math.floor(Math.random() * 1001) + 1000;
       } else {
-        if (state.aiRound === 1) {
-          hitsCount = lottery.pick_count - 1;
-          prizeAmount = Math.floor(Math.random() * 701) + 500;
-        } else {
-          hitsCount = lottery.pick_count;
-          prizeAmount = Math.floor(Math.random() * 90001) + 30000;
-        }
+        hitsCount = lottery.pick_count - 1;
+        prizeAmount = Math.floor(Math.random() * 701) + 500;
       }
 
       const matchedPicks = picked.slice(0, hitsCount);
@@ -1168,18 +1147,7 @@
     }
 
     function nextAIRound() {
-      if (state.aiRound === 1) {
-        state.aiRound = 2;
-        state.aiSelected = [];
-        state.aiResultState = 'playing';
-        state.aiHits = 0;
-        state.aiPrize = 0;
-        state.aiDraw = [];
-        generateAITargets();
-        render();
-      } else {
-        setView('resultsSummary');
-      }
+      setView('resultsSummary');
     }
 
     // 6. VIEW RESULTS SUMMARY
@@ -1220,20 +1188,20 @@
             <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 w-full border border-white/10 mb-5 shadow-2xl">
               <p class="text-sm font-bold text-green-200 uppercase tracking-widest mb-2">Saldo total com a IA:</p>
               <div class="text-4xl font-black text-white mb-1">${formattedTotal}</div>
-              <p class="text-xs font-bold text-green-200 uppercase tracking-widest">em apenas 2 rodadas</p>
+              <p class="text-xs font-bold text-green-200 uppercase tracking-widest">em 1 rodada com a IA</p>
             </div>
 
-            <!-- Urgency Card -->
+            <!-- Personalized urgency blackhat -->
             <div class="w-full bg-yellow-400/15 border border-yellow-400/40 rounded-2xl p-4 mb-5 text-left">
               <div class="flex items-center gap-2 mb-1.5">
                 <span class="text-yellow-300 text-lg">⚡</span>
-                <span class="text-yellow-300 font-black text-sm uppercase tracking-wide">Vagas com desconto encerrando!</span>
+                <span class="text-yellow-300 font-black text-sm uppercase tracking-wide">Sua janela está se fechando</span>
               </div>
-              <p class="text-yellow-100 text-xs leading-relaxed">Estamos liberando acesso com preço especial apenas para quem completou a simulação agora. Essa condição <span class="font-black text-yellow-300">não estará disponível</span> se você sair desta página.</p>
+              <p class="text-yellow-100 text-xs leading-relaxed">Quem tem o objetivo de <strong class="text-yellow-300">${state.quizAnswers.q1 || 'mudar de vida'}</strong> e não age agora volta para a fila dos 97% que jogam sem estratégia. O desconto desta página expira quando você sair.</p>
             </div>
 
             <button
-              onclick="startQuiz()"
+              onclick="setView('checkoutVideo')"
               class="w-full py-4 rounded-xl bg-white text-[#107048] text-base font-black uppercase tracking-widest shadow-xl hover:bg-gray-100 hover:scale-[1.02] transition-all duration-300 animate-pulse-btn"
               style="animation: pulseBtnStyle 1.5s infinite ease-in-out;"
             >
@@ -1248,6 +1216,8 @@
     function startQuiz() {
       state.quizStep = 0;
       state.quizAnimating = false;
+      state.quizAnswers = {};
+      try { localStorage.removeItem('plt_quiz_answers'); } catch(e) {}
       setView('quiz');
     }
 
@@ -1258,7 +1228,7 @@
 
       const optionsHtml = q.options.map((opt, i) => `
         <button
-          onclick="nextQuizStep()"
+          onclick="nextQuizStep('${opt.replace(/'/g, "\\'")}')"
           class="w-full text-left p-4 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium shadow-sm hover:border-[#005da8] hover:text-[#005da8] hover:shadow-md transition-all active:scale-[0.98]"
         >
           ${opt}
@@ -1296,8 +1266,12 @@
       `;
     }
 
-    function nextQuizStep() {
+    function nextQuizStep(answer) {
       if (state.quizAnimating) return;
+      // Save answer
+      const q = QUIZ_QUESTIONS[state.quizStep];
+      state.quizAnswers['q' + (state.quizStep + 1)] = answer;
+      try { localStorage.setItem('plt_quiz_answers', JSON.stringify(state.quizAnswers)); } catch(e) {}
       state.quizAnimating = true;
       render();
 
@@ -1347,9 +1321,10 @@
 
             <!-- Card Note -->
             <div class="mt-12 p-6 rounded-2xl bg-slate-900 border border-slate-800 w-full">
-              <p class="text-slate-400 text-sm mb-4 text-center leading-relaxed">
+              <p id="loading-card-note" class="text-slate-400 text-sm mb-4 text-center leading-relaxed">
                 AGUARDE... Estamos processando suas respostas através de nosso algoritmo exclusivo que já identificou mais de 12.700 perfis de ganhadores...
               </p>
+              <p class="text-slate-500 text-xs text-center mb-4">Estamos organizando os dados da simulação para você entender melhor como funciona a escolha de números.</p>
               <div id="loading-alert-box" class="${state.loadingProgress > 50 ? 'block' : 'hidden'} bg-[#209869]/10 border border-[#209869]/30 p-3 rounded-lg text-center animate-fade-in-up">
                 <p class="text-[#4ade80] text-sm font-bold">
                   Seu perfil está muito próximo de um dos padrões considerados altamente promissores pelo nosso algoritmo.
@@ -1367,12 +1342,19 @@
     }
 
     function startLoading() {
+      const q1 = state.quizAnswers.q1 || 'sua meta';
       state.loadingProgress = 0;
-      state.loadingStatusText = "Analisando suas respostas...";
+      state.loadingStatusText = "Analisando o seu perfil de jogo...";
       setView('loading');
 
       if (loadingInterval) clearInterval(loadingInterval);
       if (loadingTimeout) clearTimeout(loadingTimeout);
+
+      // Update loading card text dynamically before interval
+      setTimeout(() => {
+        const cardNote = document.getElementById('loading-card-note');
+        if (cardNote) cardNote.innerHTML = `Identificamos que seu objetivo é <strong>${q1}</strong>. Agora estamos preparando uma experiência alinhada ao que você busca.`;
+      }, 300);
 
       // 50ms × 100 steps = 5 seconds total
       loadingInterval = setInterval(() => {
@@ -1409,7 +1391,7 @@
 
       loadingTimeout = setTimeout(() => {
         clearInterval(loadingInterval);
-        setView('checkoutVideo');
+        setView('selection');
       }, 5500);
     }
 
