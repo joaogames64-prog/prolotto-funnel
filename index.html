@@ -1432,7 +1432,7 @@
       setTimeout(() => initVSLExtras(), 100);
 
       return `
-        <div id="vsl-page-wrapper" class="min-h-screen w-full flex flex-col items-center bg-white font-sans overflow-x-hidden pb-12 ${isAlreadyUnlocked ? '' : 'overflow-y-hidden max-h-screen'}">
+        <div id="vsl-page-wrapper" class="min-h-screen w-full flex flex-col items-center bg-white font-sans overflow-x-hidden pb-12">
 
           <!-- Retention Warning Banner -->
           <div class="w-full bg-[#0d1117] border-b-2 border-yellow-500/30 py-3 px-4 text-center" style="background: linear-gradient(135deg, #0a0f1e 0%, #0d1117 50%, #0a0f1e 100%);">
@@ -1598,11 +1598,6 @@
       if (ctaContainer) {
         ctaContainer.classList.remove('hidden');
         ctaContainer.classList.add('block');
-      }
-      // Unlock scroll when CTA appears
-      const wrapper = document.getElementById('vsl-page-wrapper');
-      if (wrapper) {
-        wrapper.classList.remove('overflow-y-hidden', 'max-h-screen');
       }
     }
 
