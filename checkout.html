@@ -88,6 +88,81 @@
     </div>
   </div>
 
+  <!-- Bumps Popup Modal -->
+  <div id="bumps-modal" class="fixed inset-0 z-[110] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" style="display:none;">
+    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.35s ease-out forwards; max-height: 92vh; overflow-y: auto;">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-amber-500 to-orange-400 p-4 text-center">
+        <p class="text-[10px] font-black text-white/80 uppercase tracking-widest mb-0.5">⚠️ Oferta exclusiva disponível APENAS agora</p>
+        <h3 class="text-lg font-black text-white leading-tight">🎁 Aproveite antes de confirmar o pagamento</h3>
+      </div>
+
+      <div class="p-4 space-y-3">
+        <!-- Bump 1 -->
+        <label class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-[#2ac473] bg-[#2ac473]/5 cursor-pointer transition-all relative overflow-hidden">
+          <div class="absolute top-0 right-0 bg-[#2ac473] text-white text-[9px] font-black px-3 py-0.5 rounded-bl-lg uppercase">Mais Popular</div>
+          <input type="checkbox" id="modal-bump-1" class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0" />
+          <div class="flex-grow min-w-0 pr-10">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <div class="flex items-center gap-2">
+                <img src="https://i.imgur.com/jmtbos4.png" class="w-6 h-6 rounded-md object-cover border border-emerald-200" />
+                <span class="font-bold text-sm text-slate-900">ProLotto no WhatsApp</span>
+              </div>
+              <div class="bg-[#2ac473] text-white px-2 py-0.5 rounded-full text-xs font-black flex items-center gap-1">
+                <span class="line-through opacity-70 text-[10px]">R$47</span><span>R$ 7,00</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 font-medium"><span class="text-red-500 font-black">Sem isso:</span> precisa abrir o app todo dia. <span class="text-[#2ac473] font-black">Com isso:</span> recebe tudo no WhatsApp.</p>
+          </div>
+        </label>
+
+        <!-- Bump 2 -->
+        <label class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-amber-400/60 bg-amber-50/50 cursor-pointer transition-all">
+          <input type="checkbox" id="modal-bump-2" class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0" />
+          <div class="flex-grow min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <div class="flex items-center gap-2">
+                <img src="https://i.imgur.com/sKQa3yK.png" class="w-6 h-6 rounded-md object-cover border border-emerald-200" />
+                <span class="font-bold text-sm text-slate-900">Pacote Gerador PRO</span>
+              </div>
+              <div class="bg-amber-500 text-white px-2 py-0.5 rounded-full text-xs font-black flex items-center gap-1">
+                <span class="line-through opacity-70 text-[10px]">R$67</span><span>R$ 14,00</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 font-medium"><span class="text-red-500 font-black">Sem isso:</span> 1 combinação por vez. <span class="text-[#2ac473] font-black">Com isso:</span> 10 combinações + filtros avançados.</p>
+          </div>
+        </label>
+
+        <!-- Bump 3 -->
+        <label class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-amber-400/60 bg-amber-50/50 cursor-pointer transition-all">
+          <input type="checkbox" id="modal-bump-3" class="mt-1 w-5 h-5 accent-[#2ac473] rounded cursor-pointer flex-shrink-0" />
+          <div class="flex-grow min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <div class="flex items-center gap-2">
+                <img src="https://i.imgur.com/sKQa3yK.png" class="w-6 h-6 rounded-md object-cover border border-emerald-200" />
+                <span class="font-bold text-sm text-slate-900">Estratégias de Bolão</span>
+              </div>
+              <div class="bg-amber-500 text-white px-2 py-0.5 rounded-full text-xs font-black flex items-center gap-1">
+                <span class="line-through opacity-70 text-[10px]">R$67</span><span>R$ 14,00</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 font-medium"><span class="text-red-500 font-black">Sem isso:</span> joga sozinho. <span class="text-[#2ac473] font-black">Com isso:</span> bolões inteligentes com mais chances.</p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Confirm CTA -->
+      <div class="px-4 pb-5 pt-2">
+        <button onclick="confirmBumps()" class="w-full py-4 rounded-xl bg-[#2ac473] hover:bg-[#22a660] text-white font-black text-base uppercase tracking-wider shadow-xl transition-all animate-pulse-btn">
+          CONFIRMAR E GERAR PIX
+        </button>
+        <button onclick="confirmBumps(true)" class="w-full mt-2 text-xs text-slate-400 hover:text-slate-600 py-1">
+          Não, continuar sem os adicionais
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Sticky Mobile CTA Bar -->
   <div id="sticky-mobile-cta" class="fixed bottom-0 left-0 w-full z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 flex items-center justify-between gap-3 shadow-2xl lg:hidden" style="display:none;">
     <div class="text-left">
@@ -211,8 +286,8 @@
           </div>
         </div>
 
-        <!-- Order Bumps (Up-Sells) -->
-        <div class="bg-gradient-to-b from-amber-50 to-white rounded-2xl p-5 sm:p-6 shadow-sm border-2 border-amber-300">
+        <!-- Order Bumps hidden from main layout - shown in popup -->
+        <div class="hidden">
           <div class="flex items-center gap-2 mb-1">
             <span class="text-lg">🎁</span>
             <h3 class="text-sm font-black text-slate-900 uppercase tracking-wide">Ofertas Exclusivas Desta Página</h3>
@@ -354,12 +429,18 @@
           <!-- Submit CTA Button -->
           <button
             type="button"
-            onclick="gerarPix()"
+            onclick="openBumpsModal()"
             id="btn-submit-checkout"
             class="w-full py-4 px-6 rounded-xl bg-[#2ac473] hover:bg-[#22a660] text-white font-black text-lg uppercase tracking-wider text-center shadow-xl transition-all duration-300 animate-pulse-btn"
           >
             GERAR CÓDIGO PIX
           </button>
+
+          <!-- Trust Badge -->
+          <div class="mt-3 flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3">
+            <img src="https://i.imgur.com/zaQkaDL.jpeg" alt="Avaliação" class="w-10 h-10 rounded-full object-cover border-2 border-[#2ac473] flex-shrink-0 shadow-sm" />
+            <p class="text-[11px] font-bold text-slate-700 leading-tight">Essa empresa tem uma <span class="text-[#2ac473] font-black">excelente avaliação (9.8/10)</span> de acordo com os clientes no último ano!</p>
+          </div>
 
           <!-- Guarantee Badge -->
           <div class="mt-3 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl py-2.5 px-4">
@@ -822,6 +903,35 @@
         setInterval(showProof, 15000);
       }, 6000);
     })();
+
+    // --- Bump Modal Functions ---
+    function openBumpsModal() {
+      // Validate form first
+      const name = (document.getElementById('input-name').value || '').trim();
+      const email = (document.getElementById('input-email').value || '').trim();
+      const phone = (document.getElementById('input-phone').value || '').trim();
+      if (!name || !email || !phone) {
+        alert('Preencha seus dados antes de continuar.');
+        return;
+      }
+      document.getElementById('bumps-modal').style.display = 'flex';
+    }
+
+    function confirmBumps(skipAll) {
+      // Sync modal checkboxes → main checkboxes → update total → close → gerar pix
+      if (!skipAll) {
+        document.getElementById('bump-1').checked = document.getElementById('modal-bump-1').checked;
+        document.getElementById('bump-2').checked = document.getElementById('modal-bump-2').checked;
+        document.getElementById('bump-3').checked = document.getElementById('modal-bump-3').checked;
+      } else {
+        document.getElementById('bump-1').checked = false;
+        document.getElementById('bump-2').checked = false;
+        document.getElementById('bump-3').checked = false;
+      }
+      updateTotal();
+      document.getElementById('bumps-modal').style.display = 'none';
+      gerarPix();
+    }
 
     // --- Live Buyer Counter ---
     (function() {
